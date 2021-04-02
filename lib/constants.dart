@@ -31,9 +31,11 @@ const kShadowColor = Color(0xFF364564);
 
 const kPrimaryLightColor = Color(0xFFEFC2A9);
 
+const kButtonColor = Color(0xFF5E5CE6);
+const kTwitchColor = Color(0xFFD921EF);
+
 
 Future splashProgress() async {
-
   EasyLoading.instance.backgroundColor = kPrimaryColor;
   EasyLoading.instance.indicatorColor = kPrimaryColor;
   EasyLoading.instance.indicatorType = EasyLoadingIndicatorType.dualRing;

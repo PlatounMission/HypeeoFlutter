@@ -16,7 +16,7 @@ class _RoundedButtonState extends State<RoundedButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0),
       child: Material(
         shadowColor: Colors.grey[50],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(29.0)),
@@ -45,7 +45,7 @@ class _RoundedButtonState extends State<RoundedButton> {
               onTap: widget.onTap,
               child: Container(
                 width: 200,
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(13.0),
                 child: Center(
                   child: Text(
                     widget.title ?? "OK",
