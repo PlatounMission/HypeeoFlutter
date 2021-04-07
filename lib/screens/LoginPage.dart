@@ -248,19 +248,20 @@ class _LoginPageState extends State<LoginPage> {
 
                               showProgress();
 
-                              UserCredential _credz = await FirebaseAuth
-                                  .instance
-                                  .createUserWithEmailAndPassword(
-                                      email: email, password: password);
-
-                              if (auth.currentUser.isAnonymous) {
+                              if (auth.currentUser != null && auth.currentUser.isAnonymous) {
                                 try {
-                                  await auth.currentUser
-                                      .linkWithCredential(_credz.credential);
+                                  await auth.currentUser.delete();
+
+                                  print("current user is ${auth.currentUser.email}");
                                 } catch (e) {
                                   print(e);
                                 }
                               }
+
+                              UserCredential _credz = await FirebaseAuth
+                                  .instance
+                                  .createUserWithEmailAndPassword(
+                                      email: email, password: password);
 
                               if (_credz.user != null) {
 

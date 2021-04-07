@@ -131,6 +131,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
                             showProgress();
 
+                            FirebaseAuth.instance.currentUser?.reload();
+
                             if (FirebaseAuth.instance.currentUser == null) {
                               _appService.loginAnonymously();
                             }

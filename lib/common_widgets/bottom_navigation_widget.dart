@@ -21,7 +21,8 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   Widget build(BuildContext context) {
     return Consumer<AppConfig>(
       builder: (context, appConfig, child) {
-        return appConfig.appUser == null
+        return appConfig.appUser == null ||
+                appConfig.appUser?.isAnynymous == true
             ? Container(
                 width: double.infinity,
                 height: 60.0,
