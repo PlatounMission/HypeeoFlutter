@@ -1,8 +1,13 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:hypeeo_app/app_config.dart';
 import 'package:hypeeo_app/constants.dart';
+import 'package:hypeeo_app/models/app_user.dart';
 import 'package:hypeeo_app/router/router.gr.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreenPage extends StatefulWidget {
@@ -39,12 +44,12 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
       await Firebase.initializeApp();
 
       _isFirebaseInitialized = true;
-
     } catch(e) {
       // Set `_error` state to true if Firebase initialization fails
       _isFirebaseInitialized = false;
       _isFirebaseInitializedError = true;
     }
+
 
     //important line...
     hideProgress();

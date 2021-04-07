@@ -1,22 +1,20 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-class RoundedButton extends StatefulWidget {
+class CompletedButtonWidget extends StatefulWidget {
 
   final String? title;
-  late final GestureTapCallback? onTap;
-
-  RoundedButton({this.title, this.onTap});
+  CompletedButtonWidget({this.title});
 
   @override
-  _RoundedButtonState createState() => _RoundedButtonState();
+  _CompletedButtonWidgetState createState() => _CompletedButtonWidgetState();
 }
 
-class _RoundedButtonState extends State<RoundedButton> {
+class _CompletedButtonWidgetState extends State<CompletedButtonWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0),
+      margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
       child: Material(
         shadowColor: Colors.grey[50],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(29.0)),
@@ -24,11 +22,11 @@ class _RoundedButtonState extends State<RoundedButton> {
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(29.0)),
-              color: Color(0xFF5E5CE6),
+              color: Color(0xFF000000),
               shape: BoxShape.rectangle,
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xFF5E5CE6),
+                  color: Color(0xFF660E11),
                   blurRadius: 20.0,
                   spreadRadius: 6.0,
                 ),
@@ -42,16 +40,17 @@ class _RoundedButtonState extends State<RoundedButton> {
             child: InkWell(
               borderRadius: BorderRadius.all(Radius.circular(29.0)),
               splashColor: Colors.white30,
-              onTap: widget.onTap,
+              onTap: () {},
               child: Container(
                 width: 200,
-                height: 50,
+                height: 60,
                 padding: EdgeInsets.all(13.0),
                 child: Center(
                   child: Text(
                     widget.title ?? "OK",
                     style: TextStyle(
                         fontSize: 20,
+                        fontWeight: FontWeight.bold,
                         color: Colors.white,
                         fontFamily: "poppoins"
                     ),

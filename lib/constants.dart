@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart' show FlutterLocalNotificationsPlugin;
 
@@ -34,24 +36,21 @@ const kPrimaryLightColor = Color(0xFFEFC2A9);
 const kButtonColor = Color(0xFF5E5CE6);
 const kTwitchColor = Color(0xFFD921EF);
 
-
 Future splashProgress() async {
   EasyLoading.instance.backgroundColor = kPrimaryColor;
   EasyLoading.instance.indicatorColor = kPrimaryColor;
   EasyLoading.instance.indicatorType = EasyLoadingIndicatorType.dualRing;
   await EasyLoading.show(
-      maskType: EasyLoadingMaskType.clear,
-      dismissOnTap: false
-  );
+      maskType: EasyLoadingMaskType.clear, dismissOnTap: false);
 }
 
 Future showProgress() async {
-
-  EasyLoading.instance.indicatorType = EasyLoadingIndicatorType.cubeGrid;
+  EasyLoading.instance.maskColor = kButtonColor.withOpacity(0.1);
+  EasyLoading.instance.progressColor = Colors.white;
+  EasyLoading.instance.indicatorColor = kPrimaryColor;
+  EasyLoading.instance.indicatorType = EasyLoadingIndicatorType.ring;
   await EasyLoading.show(
-      maskType: EasyLoadingMaskType.clear,
-      dismissOnTap: false
-  );
+      maskType: EasyLoadingMaskType.custom, dismissOnTap: false, );
 }
 
 Future hideProgress() async {
@@ -59,14 +58,29 @@ Future hideProgress() async {
 }
 
 extension AppConstants on SharedPreferences {
-  //check onboard view stat
-  // void setOnBoardviewed(bool viewed) {
-  //   setBool(CONST_IS_ONBOARD_VIEWED, viewed);
-  // }
-  // bool getIsOnBoardViewed() {
-  //   return getBool(CONST_IS_ONBOARD_VIEWED) ?? false;
-  // }
 }
+
+void showErrorAlert(BuildContext context, String title, String desc) {
+  Alert(
+    context: context,
+    type: AlertType.error,
+    title: title,
+    desc: desc,
+    buttons: [
+      DialogButton(
+        color: kButtonColor,
+        radius: BorderRadius.circular(29),
+        child: Text(
+          "Okay",
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
+        onPressed: () => Navigator.pop(context),
+        width: 120,
+      )
+    ],
+  ).show();
+}
+
 
 //Firebase error codes...
 // String getMessageFromErrorCode(BuildContext context, String errorCode) {

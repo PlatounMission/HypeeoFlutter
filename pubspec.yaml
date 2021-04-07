@@ -27,18 +27,17 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  number_display: ^3.0.0
+  flash: ^1.5.1
   auto_route: ^1.0.2
   google_fonts: '>=1.1.2 <2.0.0'
   #  stripe_payment: ^1.0.11
   provider: ^5.0.0
-  introduction_screen: ^2.0.0
   global_configuration: ^1.6.0
   carousel_slider: 3.0.0
-  flash: ^1.5.0
+  rflutter_alert: ^2.0.2
   timezone: ^0.6.1
   fluttericon: ^2.0.0
-  cached_network_image: ^2.5.0
-  lottie: ^1.0.1
   #  webview_flutter: ^2.0.2
 
   shared_preferences: ^2.0.5

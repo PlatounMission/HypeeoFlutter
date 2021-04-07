@@ -6,6 +6,7 @@
 
 import 'package:auto_route/auto_route.dart' as _i1;
 
+import '../models/app_user.dart' as _i13;
 import '../screens/AdminPage.dart' as _i11;
 import '../screens/home_page.dart' as _i2;
 import '../screens/LoginPage.dart' as _i4;
@@ -35,21 +36,30 @@ class AppRouter extends _i1.RootStackRouter {
       return _i1.MaterialPageX(entry: entry, child: _i3.SplashScreenPage());
     },
     LoginRoute.name: (entry) {
+      var args = entry.routeData.argsAs<LoginRouteArgs>();
       return _i1.CustomPage(
           entry: entry,
-          child: _i4.LoginPage(),
+          child: _i4.LoginPage(
+              isStreamer: args.isStreamer, onLoginSuccess: args.onLoginSuccess),
           transitionsBuilder: _i1.TransitionsBuilders.slideBottom,
           opaque: true,
           barrierDismissible: false);
     },
     StreamerDetailsRoute.name: (entry) {
-      return _i1.MaterialPageX(entry: entry, child: _i5.StreamerDetailsPage());
+      var args = entry.routeData.argsAs<StreamerDetailsRouteArgs>();
+      return _i1.MaterialPageX(
+          entry: entry, child: _i5.StreamerDetailsPage(args.selectedStreamer));
     },
     StreamerDonateRoute.name: (entry) {
       return _i1.MaterialPageX(entry: entry, child: _i6.StreamerDonatePage());
     },
     StreamerInfoEditRoute.name: (entry) {
-      return _i1.MaterialPageX(entry: entry, child: _i7.StreamerInfoEditPage());
+      var args = entry.routeData.argsAs<StreamerInfoEditRouteArgs>(
+          orElse: () => StreamerInfoEditRouteArgs());
+      return _i1.MaterialPageX(
+          entry: entry,
+          child:
+              _i7.StreamerInfoEditPage(onEditSucceeded: args.onEditSucceeded));
     },
     StreamerInfoValidationRoute.name: (entry) {
       return _i1.MaterialPageX(
@@ -101,16 +111,37 @@ class SplashScreenRoute extends _i1.PageRouteInfo {
   static const String name = 'SplashScreenRoute';
 }
 
-class LoginRoute extends _i1.PageRouteInfo {
-  const LoginRoute() : super(name, path: '/login-page');
+class LoginRoute extends _i1.PageRouteInfo<LoginRouteArgs> {
+  LoginRoute({required dynamic isStreamer, Function? onLoginSuccess})
+      : super(name,
+            path: '/login-page',
+            args: LoginRouteArgs(
+                isStreamer: isStreamer, onLoginSuccess: onLoginSuccess));
 
   static const String name = 'LoginRoute';
 }
 
-class StreamerDetailsRoute extends _i1.PageRouteInfo {
-  const StreamerDetailsRoute() : super(name, path: '/');
+class LoginRouteArgs {
+  const LoginRouteArgs({required this.isStreamer, this.onLoginSuccess});
+
+  final dynamic isStreamer;
+
+  final Function? onLoginSuccess;
+}
+
+class StreamerDetailsRoute extends _i1.PageRouteInfo<StreamerDetailsRouteArgs> {
+  StreamerDetailsRoute({required _i13.AppUser? selectedStreamer})
+      : super(name,
+            path: '/',
+            args: StreamerDetailsRouteArgs(selectedStreamer: selectedStreamer));
 
   static const String name = 'StreamerDetailsRoute';
+}
+
+class StreamerDetailsRouteArgs {
+  const StreamerDetailsRouteArgs({required this.selectedStreamer});
+
+  final _i13.AppUser? selectedStreamer;
 }
 
 class StreamerDonateRoute extends _i1.PageRouteInfo {
@@ -119,10 +150,20 @@ class StreamerDonateRoute extends _i1.PageRouteInfo {
   static const String name = 'StreamerDonateRoute';
 }
 
-class StreamerInfoEditRoute extends _i1.PageRouteInfo {
-  const StreamerInfoEditRoute() : super(name, path: '/');
+class StreamerInfoEditRoute
+    extends _i1.PageRouteInfo<StreamerInfoEditRouteArgs> {
+  StreamerInfoEditRoute({Function? onEditSucceeded})
+      : super(name,
+            path: '/',
+            args: StreamerInfoEditRouteArgs(onEditSucceeded: onEditSucceeded));
 
   static const String name = 'StreamerInfoEditRoute';
+}
+
+class StreamerInfoEditRouteArgs {
+  const StreamerInfoEditRouteArgs({this.onEditSucceeded});
+
+  final Function? onEditSucceeded;
 }
 
 class StreamerInfoValidationRoute extends _i1.PageRouteInfo {

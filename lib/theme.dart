@@ -32,7 +32,7 @@ ThemeData darkThemeData(BuildContext context) {
   return ThemeData.dark().copyWith(
     primaryColor: kPrimaryColor,
     accentColor: kAccentDarkColor,
-    scaffoldBackgroundColor: Color(0xFF0D0C0E),
+    scaffoldBackgroundColor: Color(0xFFFFFFFF),
     appBarTheme: appBarTheme,
     colorScheme: ColorScheme.light(
       secondary: kSecondaryDarkColor,

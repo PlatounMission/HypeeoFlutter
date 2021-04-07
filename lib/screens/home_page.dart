@@ -1,14 +1,18 @@
-import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:hypeeo_app/app_config.dart';
 import 'package:hypeeo_app/common_widgets/background_view_widget.dart';
-import 'package:hypeeo_app/common_widgets/login_footer.dart';
+import 'package:hypeeo_app/common_widgets/bottom_navigation_widget.dart';
 import 'package:hypeeo_app/constants.dart';
+import 'package:hypeeo_app/models/app_user.dart';
 import 'package:hypeeo_app/router/router.gr.dart';
+import 'package:hypeeo_app/services/AppService.dart';
 import 'package:hypeeo_app/text_widgets/search_text_field.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -16,6 +20,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  AppService _appService = AppService();
+
+  AppUser? _appUser;
+
+  String searchText = "";
+
   late AnimationController _controller = AnimationController(
     duration: const Duration(milliseconds: 850),
     vsync: this,
@@ -37,6 +47,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    try {
+      getLoggedinUserInfo();
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -54,34 +70,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(25, 0, 25, 20),
-                child: LoginFooterWidget(
-                  onFanTxtLabelTapped: () {
-                    print("on fan pressed...");
-                    Provider.of<AppConfig>(context, listen: false).isStreamer =
-                        false;
-                    context.router.push(LoginRoute());
-                  },
-                  onStreamerTxtLabelTapped: () {
-                    print("on streamer pressed...");
-                    Provider.of<AppConfig>(context, listen: false).isStreamer =
-                        true;
-                    context.router.push(LoginRoute());
-                  },
-                ),
-              ),
+                  padding: const EdgeInsets.fromLTRB(25, 0, 25, 20),
+                  child: BottomNavigationWidget(
+                    onLoginSuccess: () {
+                      setState(() {});
+                    },
+                  )),
             ),
             Align(
               alignment: Alignment.topCenter,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(30, 150, 30, 0),
+                padding: const EdgeInsets.fromLTRB(30, 140, 30, 0),
                 child: Container(
                   child: Column(
                     children: [
                       SlideTransition(
                           position: _offsetAnimation,
-                          child: Image.asset("assets/logo.png")
-                      ),
+                          child: Image.asset("assets/logo.png")),
                       Image.asset(
                         "assets/dotted_border.png",
                         width: 420,
@@ -114,10 +119,80 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ),
                         SearchTextField(
+                          onChanged: (value) {
+                            searchText = value;
+                          },
                           hintText:
                               "Enter the streamer name you’re looking for",
-                          onSuffixPressed: () {
-                            context.router.push(StreamerDetailsRoute());
+                          onSuffixPressed: () async {
+                            if (searchText.isEmpty) {
+                              return;
+                            }
+
+                            showProgress();
+
+                            if (FirebaseAuth.instance.currentUser == null) {
+                              _appService.loginAnonymously();
+                            }
+
+                            Map<String, dynamic>? _map =
+                                await searchStreamer(searchText);
+
+                            hideProgress();
+
+                            if (_map != null) {
+                              AppUser _usr = AppUser.map(_map);
+
+                              Provider.of<AppConfig>(context, listen: false)
+                                  .selectedStreamer = _usr;
+
+                              context.router.push(
+                                  StreamerDetailsRoute(selectedStreamer: _usr));
+                            } else {
+                              showFlash(
+                                context: context,
+                                duration: Duration(seconds: 2),
+                                builder: (context, controller) {
+                                  return Flash(
+                                    backgroundColor: Colors.red,
+                                    position: FlashPosition.top,
+                                    controller: controller,
+                                    style: FlashStyle.grounded,
+                                    boxShadows: kElevationToShadow[4],
+                                    horizontalDismissDirection:
+                                        HorizontalDismissDirection.horizontal,
+                                    child: FlashBar(
+                                      message: Text(
+                                        'No streamers found.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                              print("no streamer found...");
+                            }
+
+                            return;
+                            //todo remove this 'false' later...
+                            if (false &&
+                                _appUser != null &&
+                                (_appUser!.isStreamer ?? false)) {
+                              showErrorAlert(context, "",
+                                  "Sorry! Streamers are not allowed to donate at this moment. We are working on it.");
+                            }
+
+                            //todo remove this ...
+                            FirebaseAuth.instance.signOut();
+                            Provider.of<AppConfig>(context, listen: false)
+                                .appUser = null;
+                            setState(() {});
+
+                            //context.router.push(StreamerDetailsRoute());
 
                             //todo search for streamers from registered streamers...
                           },
@@ -132,5 +207,43 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  Future<void> getLoggedinUserInfo() async {
+    try {
+      Map<String, dynamic>? _map = await _appService.retrieveLoggedinUserInfo();
+
+      if (_map != null) {
+        Provider.of<AppConfig>(context, listen: false).appUser =
+            AppUser.map(_map);
+      } else if (FirebaseAuth.instance.currentUser != null) {
+        Provider.of<AppConfig>(context, listen: false).appUser =
+            AppUser.map({"email": FirebaseAuth.instance.currentUser.email});
+
+        if (FirebaseAuth.instance.currentUser.email
+            .contains("admin@gmail.com")) {
+          AppUser? user =
+              Provider.of<AppConfig>(context, listen: false).appUser;
+
+          if (user != null) {
+            user.isAdmin = true;
+            Provider.of<AppConfig>(context, listen: false).appUser = user;
+          }
+        }
+      }
+
+      setState(() {});
+    } catch (e) {
+      print(e);
+      hideProgress();
+    }
+  }
+
+  Future<Map<String, dynamic>?> searchStreamer(String searchText) async {
+    try {
+      return await _appService.searchStreamerByName(searchText);
+    } catch (e) {
+      print(e);
+    }
   }
 }
