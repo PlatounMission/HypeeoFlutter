@@ -8,15 +8,15 @@ import 'package:hypeeo_app/common_widgets/rounded_button.dart';
 import 'package:hypeeo_app/constants.dart';
 import 'package:hypeeo_app/models/app_user.dart';
 import 'package:hypeeo_app/router/router.gr.dart';
+import 'package:hypeeo_app/services/AppService.dart';
+import 'package:number_display/number_display.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../app_config.dart';
 
 class StreamerDetailsPage extends StatefulWidget {
-
-  final AppUser? selectedStreamer;
-
-  StreamerDetailsPage(this.selectedStreamer);
+  StreamerDetailsPage();
 
   @override
   _StreamerDetailsPageState createState() => _StreamerDetailsPageState();
@@ -24,8 +24,12 @@ class StreamerDetailsPage extends StatefulWidget {
 
 class _StreamerDetailsPageState extends State<StreamerDetailsPage>
     with TickerProviderStateMixin {
+  AppService _appService = AppService();
 
   AppUser? appUser;
+  AppUser? _streamer;
+  double numberOfTokenPurchased = 0;
+  double progressValue = 0;
 
   AnimationController? controller;
 
@@ -35,10 +39,24 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
 
     controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 5),
-    )..forward()..addListener(() {
+      duration: const Duration(seconds: 2),
+    )..addListener(() {
+        if (progressValue <= controller!.value) {
+          controller!.stop();
+        }
         setState(() {});
       });
+
+    try {
+      appUser = Provider.of<AppConfig>(context, listen: false).appUser;
+
+      _streamer =
+          Provider.of<AppConfig>(context, listen: false).selectedStreamer;
+
+      tokenPurchasedCount(_streamer!, appUser!);
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -49,9 +67,6 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
 
   @override
   Widget build(BuildContext context) {
-
-    appUser = Provider.of<AppConfig>(context, listen: false).appUser;
-
     // if (widget.selectedStreamer == null) {
     //   if (widget.appUser?.isStreamer == true) {
     //     widget.selectedStreamer = widget.appUser;
@@ -122,7 +137,7 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
                       Container(
                         alignment: AlignmentDirectional.topStart,
                         child: Text(
-                          "4 000 / 20 000",
+                          "${formatDecimalToString(numberOfTokenPurchased)} / ${formatDecimalToString(_streamer!.numberOfTokenIssued!)}",
                           textAlign: TextAlign.start,
                           style:
                               Theme.of(context).textTheme.headline6?.copyWith(
@@ -150,12 +165,19 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
                       ),
                       ClipRRect(
                         borderRadius: BorderRadius.all(Radius.circular(130)),
-                        child: Image.asset(
-                          "assets/user.png",
-                          fit: BoxFit.cover,
-                          width: 100,
-                          height: 100,
-                        ),
+                        child: (_streamer?.photoUrl?.isEmpty == true)
+                            ? Image.asset(
+                                "assets/user.png",
+                                fit: BoxFit.cover,
+                                width: 100,
+                                height: 100,
+                              )
+                            : Image.network(
+                                _streamer!.photoUrl!,
+                                fit: BoxFit.cover,
+                                width: 100,
+                                height: 100,
+                              ),
                       ),
                       SizedBox(
                         height: 10,
@@ -164,7 +186,7 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Fred Williams",
+                            _streamer?.twitchChannel ?? "",
                             textAlign: TextAlign.center,
                             style:
                                 Theme.of(context).textTheme.headline6?.copyWith(
@@ -179,15 +201,15 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
                                 FontAwesome.twitch,
                                 color: kTwitchColor,
                               ),
-                              onPressed: () {
-                                //todo goto twitch account...
+                              onPressed: () async {
+                                openTwitch(_streamer?.twitchChannel ?? "");
                               })
                         ],
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                         child: Text(
-                          "45K Followers",
+                          "${shortenNumber(_streamer?.numberOfFollowers ?? 0)} Followers",
                           textAlign: TextAlign.center,
                           style:
                               Theme.of(context).textTheme.headline6?.copyWith(
@@ -202,9 +224,9 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
                         height: 20,
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                        padding: const EdgeInsets.fromLTRB(0, 10, 0, 5),
                         child: Text(
-                          '\$FRDW',
+                          _streamer?.tokenName ?? "",
                           textAlign: TextAlign.center,
                           style:
                               Theme.of(context).textTheme.headline6?.copyWith(
@@ -215,13 +237,11 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
                                   ),
                         ),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                         child: Text(
-                          "Token Price : \$2",
+                          "Token Price : \$" +
+                              (_streamer?.tokenPrice ?? 0).toString(),
                           textAlign: TextAlign.center,
                           style:
                               Theme.of(context).textTheme.headline6?.copyWith(
@@ -258,8 +278,7 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
                       SizedBox(
                         height: 20,
                       ),
-                      (appUser != null &&
-                              (appUser?.isStreamer == true))
+                      (appUser != null && (appUser?.isStreamer == true))
                           ? RoundedButton(
                               title: "EDIT",
                               onTap: () {
@@ -268,19 +287,10 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
                                   //streamer has signed up. now show the homepage...
                                 }));
                               })
-                          : RoundedButton(
-                              title: "DONATE",
-                              onTap: () {
-                                context.router.push(StreamerDonateRoute());
-                              }),
+                          : showCompleteOrDonateButton(),
                       SizedBox(
-                        height: 60,
+                        height: 30,
                       ),
-                      Visibility(visible: false,
-                          child: CompletedButtonWidget(
-                            title: "COMPLETED",
-                          )
-                      )
                     ],
                   ),
                 ),
@@ -298,5 +308,33 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
         ),
       ),
     );
+  }
+
+  Widget showCompleteOrDonateButton() {
+    if (numberOfTokenPurchased < (_streamer?.numberOfTokenIssued ?? 0)) {
+      return RoundedButton(
+          title: "DONATE",
+          onTap: () {
+            context.router.push(StreamerDonateRoute(onSuccesfulDonation: () {
+              tokenPurchasedCount(_streamer!, appUser!);
+            }));
+          });
+    } else {
+      return CompletedButtonWidget(
+        title: "COMPLETED",
+      );
+    }
+  }
+
+  Future tokenPurchasedCount(AppUser streamer, AppUser user) async {
+    print("streamer email ${streamer.email!}, -> user email ${user.email!}");
+
+    numberOfTokenPurchased = await _appService.calculateNumberOfTokenPurchased(
+        streamer.email!, user.email!);
+
+    progressValue = calculateProgressBarValue(
+        numberOfTokenPurchased, _streamer!.numberOfTokenIssued ?? 0);
+
+    controller!.forward();
   }
 }

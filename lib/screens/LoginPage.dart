@@ -277,7 +277,7 @@ class _LoginPageState extends State<LoginPage> {
                                       "email": email,
                                       "photo_url": "",
                                       "is_streamer_validated": false,
-                                      "is_streamer": true
+                                      "is_streamer": true,
                                     });
 
 
@@ -292,8 +292,8 @@ class _LoginPageState extends State<LoginPage> {
 
                                   await users.doc(email).set({
                                     "email": email,
-                                    "photo_url": "",
-                                    "is_streamer": false
+                                    "is_streamer": false,
+                                    "is_deleted": false,
                                   });
 
                                 }
@@ -313,7 +313,7 @@ class _LoginPageState extends State<LoginPage> {
                                 "no_of_followers": numberOfFollowers,
                                 "email": email,
                                 "is_streamer_validated": false,
-                                "is_streamer": widget.isStreamer
+                                "is_streamer": widget.isStreamer,
                               });
 
                             } on FirebaseAuthException catch (e) {
@@ -329,7 +329,6 @@ class _LoginPageState extends State<LoginPage> {
 
                                 loginWithExistingCrdentials(email, password,
                                     () {
-
                                   hideProgress();
                                   context.router.pop();
                                   widget.onLoginSuccess?.call();
@@ -394,6 +393,8 @@ class _LoginPageState extends State<LoginPage> {
 
         Provider.of<AppConfig>(context, listen: false).appUser =
             AppUser.map(_map);
+
+        print("user assign to provider  ${ Provider.of<AppConfig>(context, listen: false).appUser?.email ?? "m..." }");
       } else {
         if (auth.currentUser != null) {
           Provider.of<AppConfig>(context, listen: false).appUser =

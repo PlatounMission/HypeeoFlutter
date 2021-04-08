@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
+import 'package:hypeeo_app/constants.dart';
 import 'package:hypeeo_app/models/app_user.dart';
 import 'package:hypeeo_app/router/router.gr.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +33,6 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
                     children: [
                       InkWell(
                         onTap: () {
-                          print("on fan pressed...");
 
                           context.router.push(LoginRoute(
                               isStreamer: false,
@@ -60,11 +60,7 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
                                   context.router.push(StreamerInfoEditRoute(
                                       onEditSucceeded: () {
 //streamer has signed up. now show the homepage...
-                                    context.router.push(StreamerDetailsRoute(
-                                        selectedStreamer:
-                                            Provider.of<AppConfig>(context,
-                                                    listen: false)
-                                                .appUser));
+                                    context.router.push(StreamerDetailsRoute());
                                   }));
                                 } catch (e) {
                                   print(e);
@@ -92,6 +88,12 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
                     children: [
                       InkWell(
                         onTap: () {
+
+                          if (AutoRouter.of(context).current!.name ==
+                              HomeRoute.name) {
+                            return;
+                          }
+
                           context.router.push(HomeRoute());
                         },
                         child: Padding(
@@ -115,14 +117,13 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
                               return;
                             }
 
-                            if (_user.isAdmin == true) {
+                            if (_user.email == KADMIN_EMAIL) {
                               context.router.push(AdminRoute());
                               return;
                             }
 
                             if (_user.isStreamer == true) {
-                              context.router.push(StreamerDetailsRoute(
-                                  selectedStreamer: _user));
+                              context.router.push(StreamerDetailsRoute());
                               return;
                             } else if (_user.email != "") {
                               context.router.push(UserSummaryRoute());

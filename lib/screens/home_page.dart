@@ -125,7 +125,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           hintText:
                               "Enter the streamer name you’re looking for",
                           onSuffixPressed: () async {
+
                             if (searchText.isEmpty) {
+                              return;
+                            }
+
+                            print("_appUser!.email ${_appUser?.email}");
+                            if (_appUser != null &&
+                            (_appUser!.email  == KADMIN_EMAIL)) {
+                              showErrorSnackBar(context, "Admin cannot donate for streamers");
                               return;
                             }
 
@@ -143,39 +151,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             hideProgress();
 
                             if (_map != null) {
+
                               AppUser _usr = AppUser.map(_map);
 
                               Provider.of<AppConfig>(context, listen: false)
                                   .selectedStreamer = _usr;
 
                               context.router.push(
-                                  StreamerDetailsRoute(selectedStreamer: _usr));
+                                  StreamerDetailsRoute());
                             } else {
-                              showFlash(
-                                context: context,
-                                duration: Duration(seconds: 2),
-                                builder: (context, controller) {
-                                  return Flash(
-                                    backgroundColor: Colors.red,
-                                    position: FlashPosition.top,
-                                    controller: controller,
-                                    style: FlashStyle.grounded,
-                                    boxShadows: kElevationToShadow[4],
-                                    horizontalDismissDirection:
-                                        HorizontalDismissDirection.horizontal,
-                                    child: FlashBar(
-                                      message: Text(
-                                        'No streamers found.',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
+                              showErrorSnackBar(context, 'No streamers found.');
                               print("no streamer found...");
                             }
 
@@ -218,18 +203,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       if (_map != null) {
         Provider.of<AppConfig>(context, listen: false).appUser =
             AppUser.map(_map);
+
+        _appUser = AppUser.map(_map);
+
       } else if (FirebaseAuth.instance.currentUser != null) {
         Provider.of<AppConfig>(context, listen: false).appUser =
             AppUser.map({"email": FirebaseAuth.instance.currentUser.email});
 
         if (FirebaseAuth.instance.currentUser.email
-            .contains("admin@gmail.com")) {
+            .contains(KADMIN_EMAIL)) {
           AppUser? user =
               Provider.of<AppConfig>(context, listen: false).appUser;
 
           if (user != null) {
             user.isAdmin = true;
             Provider.of<AppConfig>(context, listen: false).appUser = user;
+            _appUser = user;
           }
         }
       }

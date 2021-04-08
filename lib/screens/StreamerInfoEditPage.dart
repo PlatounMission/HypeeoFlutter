@@ -178,7 +178,8 @@ class _StreamerInfoEditPageState extends State<StreamerInfoEditPage> {
                         "number_of_token_issued": numberOfTokenToBeIssued,
                         "paypal_link": paypalLink,
                         "is_streamer_validated": false,
-                        "is_streamer": true
+                        "is_streamer": true,
+                        "is_deleted": false,
                       });
 
                       hideProgress();

@@ -7,24 +7,38 @@ import 'package:hypeeo_app/common_widgets/background_view_widget.dart';
 import 'package:hypeeo_app/common_widgets/bottom_navigation_widget.dart';
 import 'package:hypeeo_app/common_widgets/rounded_button.dart';
 import 'package:hypeeo_app/models/app_user.dart';
+import 'package:hypeeo_app/services/AppService.dart';
 import 'package:provider/provider.dart';
 
 import '../app_config.dart';
 import '../constants.dart';
 
 class StreamerDonatePage extends StatefulWidget {
+
+  final Function? onSuccesfulDonation;
+
+  StreamerDonatePage(this.onSuccesfulDonation);
+
   @override
   _StreamerDonatePageState createState() => _StreamerDonatePageState();
 }
 
 class _StreamerDonatePageState extends State<StreamerDonatePage> {
-  AppUser? selectedStreamer;
+
+  AppService _appService = AppService();
+
+  AppUser? _streamer;
+
   AppUser? appUser;
 
   double donationAmount = 0;
-  double amountOfTokenTobeReceived = 1230;
+
+  double amountOfTokenTobeReceived = 0;
+
+  double tokenPurchasedQtyUptoNow = 0;
 
   String? email;
+  
   String? password;
 
   @override
@@ -35,13 +49,17 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
 
   Future initData() async {
     try {
-      if (appUser == null) {
-        appUser = Provider.of<AppConfig>(context, listen: false).appUser;
-      }
+      try {
 
-      if (selectedStreamer == null) {
-        selectedStreamer =
-            Provider.of<AppConfig>(context, listen: false).selectedStreamer;
+        appUser = Provider.of<AppConfig>(context, listen: false).appUser;
+
+        _streamer = Provider.of<AppConfig>(context, listen: false).selectedStreamer;
+
+        tokenPurchasedQtyUptoNow = await _appService.calculateNumberOfTokenPurchased(
+            _streamer!.email!, appUser!.email!);
+
+      } catch (e) {
+        print(e);
       }
 
       setState(() {});
@@ -93,31 +111,50 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                         ),
                         ClipRRect(
                           borderRadius: BorderRadius.all(Radius.circular(130)),
-                          child: Image.asset(
+                          child: (_streamer?.photoUrl?.isEmpty == true)
+                              ? Image.asset(
                             "assets/user.png",
+                            fit: BoxFit.cover,
+                            width: 100,
+                            height: 100,
+                          )
+                              : Image.network(
+                            _streamer!.photoUrl!,
                             fit: BoxFit.cover,
                             width: 100,
                             height: 100,
                           ),
                         ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 15, 0, 5),
+                          child: Text(
+                            "${shortenNumber(_streamer?.numberOfFollowers ?? 0)} Followers",
+                            textAlign: TextAlign.center,
+                            style:
+                            Theme.of(context).textTheme.headline6?.copyWith(
+                              color: Color(0xFF535457),
+                              fontFamily: "poppins",
+                              fontWeight: FontWeight.w300,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
                         SizedBox(
-                          height: 10,
+                          height: 5,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Fred Williams",
+                              _streamer?.twitchChannel ?? "",
                               textAlign: TextAlign.center,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline6
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontFamily: "poppins",
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 22,
-                                  ),
+                              style:
+                              Theme.of(context).textTheme.headline6?.copyWith(
+                                color: Colors.white,
+                                fontFamily: "poppins",
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                              ),
                             ),
                             IconButton(
                                 icon: Icon(
@@ -125,7 +162,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                                   color: kTwitchColor,
                                 ),
                                 onPressed: () {
-                                  //todo goto twitch account...
+                                  openTwitch(_streamer?.twitchChannel ?? "");
                                 })
                           ],
                         ),
@@ -183,7 +220,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                                 ),
                                 Padding(
                                   padding:
-                                      const EdgeInsets.fromLTRB(50, 30, 50, 30),
+                                      const EdgeInsets.fromLTRB(50, 20, 50, 20),
                                   child: Text(
                                     "Please note that theee informations will be used to your account. If the informations are erroned, you may not receive your tokens.",
                                     textAlign: TextAlign.center,
@@ -193,7 +230,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                                         ?.copyWith(
                                           fontFamily: "poppins",
                                           fontWeight: FontWeight.w300,
-                                          fontSize: 10,
+                                          fontSize: 11,
                                         ),
                                   ),
                                 ),
@@ -205,7 +242,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                         Align(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            "I donate to Fred:", //todo name add here..
+                            "I donate to ${ _streamer?.twitchChannel ?? "" }:",
                             textAlign: TextAlign.start,
                             style:
                                 Theme.of(context).textTheme.headline6?.copyWith(
@@ -232,12 +269,9 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                               } catch (e) {
                                 print(e);
                               }
-
                               donationAmount = amount;
+                              _calcualteTheTokenAmountToBeReceived();
 
-                              amountOfTokenTobeReceived = 20;
-
-                              setState(() {});
                             },
                             keyboardType: TextInputType.numberWithOptions(
                                 decimal: true, signed: true),
@@ -278,7 +312,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                           child: TextField(
                             controller: TextEditingController(
                                 text:
-                                    "" + amountOfTokenTobeReceived.toString()),
+                                    "" + formatDecimalValue(amountOfTokenTobeReceived)),
                             enabled: false,
                             style: TextStyle(color: Colors.white),
                             decoration: new InputDecoration(
@@ -286,7 +320,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                                   EdgeInsets.fromLTRB(10, 20, 0, 20),
                               suffixIcon: Padding(
                                   padding: EdgeInsets.all(15),
-                                  child: Text('\$FRDW')),
+                                  child: Text( _streamer?.tokenName ?? "" )),
                             ),
                           ),
                         ),
@@ -299,9 +333,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                             title: "DONATE",
                             onTap: () {
                               try {
-                                print(appUser);
-                                print(email);
-                                print(password);
+
                                 if (donationAmount == 0) {
                                   return;
                                 }
@@ -321,15 +353,18 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                                 purchases.add({
                                   "user_email": appUser?.email ?? email,
                                   "unit_price":
-                                      selectedStreamer?.tokenPrice ?? 0,
+                                      _streamer?.tokenPrice ?? 0,
                                   "streamer_email":
-                                      selectedStreamer?.email ?? "",
+                                  _streamer?.email ?? "",
                                   "donation_amount": donationAmount,
                                   "token_count": amountOfTokenTobeReceived,
                                   "date": DateTime.now()
                                 });
 
                                 context.router.pop();
+
+                                widget.onSuccesfulDonation?.call();
+
                               } catch (e) {
                                 print(e);
                               }
@@ -365,27 +400,46 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
     );
   }
 
-  Future createUserAccount(String email, String password) async{
+  void _calcualteTheTokenAmountToBeReceived() {
+
+    try {
+      double tokenPrice = _streamer?.tokenPrice ?? 0;
+
+      if (donationAmount > 0 && tokenPrice > 0) {
+        amountOfTokenTobeReceived =  (donationAmount / tokenPrice);
+
+      } else {
+        amountOfTokenTobeReceived = 0;
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    setState(() {});
+  }
+
+  Future createUserAccount(String email, String password) async {
     try {
 
       showProgress();
 
-      UserCredential _credz = await FirebaseAuth
+      if (FirebaseAuth.instance.currentUser.isAnonymous) {
+        try {
+          await FirebaseAuth.instance.currentUser.delete();
+        } catch (e) {
+          print(e);
+          showProgress();
+        }
+      }
+
+      await FirebaseAuth
           .instance
           .createUserWithEmailAndPassword(
           email: email, password: password);
 
-      if (FirebaseAuth.instance.currentUser.isAnonymous) {
-        try {
-          await FirebaseAuth.instance.currentUser
-              .linkWithCredential(_credz.credential);
-        } catch (e) {
-          print(e);
-        }
-      }
-
     } catch(e) {
       print(e);
+      showProgress();
     }
   }
 }

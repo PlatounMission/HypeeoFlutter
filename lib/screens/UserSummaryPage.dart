@@ -1,9 +1,11 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hypeeo_app/common_widgets/background_view_widget.dart';
 import 'package:hypeeo_app/common_widgets/bottom_navigation_widget.dart';
 import 'package:hypeeo_app/router/router.gr.dart';
+import 'package:paginate_firestore/paginate_firestore.dart';
 import 'package:provider/provider.dart';
 
 import '../app_config.dart';
@@ -89,16 +91,15 @@ class _UserSummaryPageState extends State<UserSummaryPage> {
               left: 10,
               right: 10,
               bottom: 80,
-              child: ListView.builder(
-                itemCount: 20,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      'Item ${index + 1}',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  );
-                },
+              child: PaginateFirestore(
+                  itemBuilderType: PaginateBuilderType.listView, // listview and gridview
+                  itemBuilder: (index, context, documentSnapshot) => ListTile(
+                    leading: CircleAvatar(child: Icon(Icons.person)),
+                    title: Text(documentSnapshot.data()['name']),
+                    subtitle: Text(documentSnapshot.id),
+                  ),
+                  query: FirebaseFirestore.instance.collection('users').orderBy('name'),
+                  isLive: true // to fetch real-time data
               ),
             ),
             Align(

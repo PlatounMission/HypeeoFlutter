@@ -6,7 +6,6 @@
 
 import 'package:auto_route/auto_route.dart' as _i1;
 
-import '../models/app_user.dart' as _i13;
 import '../screens/AdminPage.dart' as _i11;
 import '../screens/home_page.dart' as _i2;
 import '../screens/LoginPage.dart' as _i4;
@@ -46,12 +45,13 @@ class AppRouter extends _i1.RootStackRouter {
           barrierDismissible: false);
     },
     StreamerDetailsRoute.name: (entry) {
-      var args = entry.routeData.argsAs<StreamerDetailsRouteArgs>();
-      return _i1.MaterialPageX(
-          entry: entry, child: _i5.StreamerDetailsPage(args.selectedStreamer));
+      return _i1.MaterialPageX(entry: entry, child: _i5.StreamerDetailsPage());
     },
     StreamerDonateRoute.name: (entry) {
-      return _i1.MaterialPageX(entry: entry, child: _i6.StreamerDonatePage());
+      var args = entry.routeData.argsAs<StreamerDonateRouteArgs>();
+      return _i1.MaterialPageX(
+          entry: entry,
+          child: _i6.StreamerDonatePage(args.onSuccesfulDonation));
     },
     StreamerInfoEditRoute.name: (entry) {
       var args = entry.routeData.argsAs<StreamerInfoEditRouteArgs>(
@@ -129,25 +129,26 @@ class LoginRouteArgs {
   final Function? onLoginSuccess;
 }
 
-class StreamerDetailsRoute extends _i1.PageRouteInfo<StreamerDetailsRouteArgs> {
-  StreamerDetailsRoute({required _i13.AppUser? selectedStreamer})
-      : super(name,
-            path: '/',
-            args: StreamerDetailsRouteArgs(selectedStreamer: selectedStreamer));
+class StreamerDetailsRoute extends _i1.PageRouteInfo {
+  const StreamerDetailsRoute() : super(name, path: '/');
 
   static const String name = 'StreamerDetailsRoute';
 }
 
-class StreamerDetailsRouteArgs {
-  const StreamerDetailsRouteArgs({required this.selectedStreamer});
-
-  final _i13.AppUser? selectedStreamer;
-}
-
-class StreamerDonateRoute extends _i1.PageRouteInfo {
-  const StreamerDonateRoute() : super(name, path: '/');
+class StreamerDonateRoute extends _i1.PageRouteInfo<StreamerDonateRouteArgs> {
+  StreamerDonateRoute({required Function? onSuccesfulDonation})
+      : super(name,
+            path: '/',
+            args: StreamerDonateRouteArgs(
+                onSuccesfulDonation: onSuccesfulDonation));
 
   static const String name = 'StreamerDonateRoute';
+}
+
+class StreamerDonateRouteArgs {
+  const StreamerDonateRouteArgs({required this.onSuccesfulDonation});
+
+  final Function? onSuccesfulDonation;
 }
 
 class StreamerInfoEditRoute

@@ -1,13 +1,18 @@
+import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:number_display/number_display.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart' show FlutterLocalNotificationsPlugin;
 
 // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 // FlutterLocalNotificationsPlugin();
+
+const KADMIN_EMAIL = "admin@gmail.com";
 
 // Colors
 const kPrimaryColor = Color(0xFF15161B);
@@ -50,15 +55,16 @@ Future showProgress() async {
   EasyLoading.instance.indicatorColor = kPrimaryColor;
   EasyLoading.instance.indicatorType = EasyLoadingIndicatorType.ring;
   await EasyLoading.show(
-      maskType: EasyLoadingMaskType.custom, dismissOnTap: false, );
+    maskType: EasyLoadingMaskType.custom,
+    dismissOnTap: false,
+  );
 }
 
 Future hideProgress() async {
   await EasyLoading.dismiss();
 }
 
-extension AppConstants on SharedPreferences {
-}
+extension AppConstants on SharedPreferences {}
 
 void showErrorAlert(BuildContext context, String title, String desc) {
   Alert(
@@ -81,6 +87,105 @@ void showErrorAlert(BuildContext context, String title, String desc) {
   ).show();
 }
 
+void showSuccessSnackBar(BuildContext context, String title) {
+  showFlash(
+    context: context,
+    duration: Duration(seconds: 2),
+    builder: (context, controller) {
+      return Flash(
+        backgroundColor: Colors.green,
+        position: FlashPosition.top,
+        controller: controller,
+        style: FlashStyle.grounded,
+        boxShadows: kElevationToShadow[4],
+        horizontalDismissDirection:
+        HorizontalDismissDirection.horizontal,
+        child: FlashBar(
+          message: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
+          ),
+        ),
+      );
+    },
+  );
+}
+void showErrorSnackBar(BuildContext context, String title) {
+  showFlash(
+    context: context,
+    duration: Duration(seconds: 2),
+    builder: (context, controller) {
+      return Flash(
+        backgroundColor: Colors.red,
+        position: FlashPosition.top,
+        controller: controller,
+        style: FlashStyle.grounded,
+        boxShadows: kElevationToShadow[4],
+        horizontalDismissDirection:
+        HorizontalDismissDirection.horizontal,
+        child: FlashBar(
+          message: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+
+String shortenNumber(double value) {
+  Display ds = createDisplay(
+      separator: " ", decimal: 0, roundingType: RoundingType.floor, length: 4);
+
+  return ds(value);
+}
+
+String formatDecimalToString(double value) {
+  Display ds = createDisplay(
+      separator: " ", decimal: 0, roundingType: RoundingType.floor);
+
+  return ds(value);
+}
+
+String formatDecimalValue(double value) {
+  Display ds = createDisplay(
+      separator: " ", decimal: 2, roundingType: RoundingType.floor);
+
+  return ds(value);
+}
+
+double calculateProgressBarValue(
+    double purchasedTokenCount, double totalTokens) {
+  try {
+    if (purchasedTokenCount > 0 && totalTokens > 0) {
+      return purchasedTokenCount / totalTokens;
+    }
+  } catch (e) {
+    print(e);
+  }
+
+  return 0;
+}
+
+void openTwitch(String twitchName) async {
+  try {
+    var _url = "twitch://stream/$twitchName";
+    var site_url = "https://www.twitch.tv/$twitchName";
+    await canLaunch(_url) ? await launch(_url) : await launch(site_url);
+  } catch (e) {
+    print(e);
+  }
+}
 
 //Firebase error codes...
 // String getMessageFromErrorCode(BuildContext context, String errorCode) {
