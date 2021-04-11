@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:hypeeo_app/common_widgets/background_view_widget.dart';
@@ -9,9 +10,7 @@ import 'package:hypeeo_app/constants.dart';
 import 'package:hypeeo_app/models/app_user.dart';
 import 'package:hypeeo_app/router/router.gr.dart';
 import 'package:hypeeo_app/services/AppService.dart';
-import 'package:number_display/number_display.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../app_config.dart';
 
@@ -53,7 +52,7 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
       _streamer =
           Provider.of<AppConfig>(context, listen: false).selectedStreamer;
 
-      tokenPurchasedCount(_streamer!, appUser!);
+      tokenPurchasedCount(_streamer!);
     } catch (e) {
       print(e);
     }
@@ -80,13 +79,14 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
           padding: const EdgeInsets.fromLTRB(30, 50, 30, 10),
           child: Stack(
             children: [
+
               Padding(
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 60),
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 10),
+                        padding: const EdgeInsets.fromLTRB(0, 30, 0, 10),
                         child: Text(
                           "RESULT",
                           textAlign: TextAlign.center,
@@ -303,7 +303,40 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
                     setState(() {});
                   },
                 ),
-              )
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                  child: Row(
+                    children: [
+                      Spacer(),
+                      TextButton(
+                          onPressed: () {
+                            try {
+
+                              FirebaseAuth.instance.signOut();
+
+                              Provider.of<AppConfig>(context, listen: false)
+                                  .appUser = null;
+                              Provider.of<AppConfig>(context, listen: false)
+                                  .selectedStreamer = null;
+
+                              context.router.pushAndRemoveUntil(HomeRoute(),
+                                  predicate: (_) => false);
+                            } catch (e) {
+                              print(e);
+                            }
+                          },
+                          child: Icon(
+                            Icons.logout,
+                            size: 30,
+                            color: Colors.white,
+                          )),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -318,8 +351,8 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
           onTap: () {
             context.router.push(StreamerDonateRoute(onSuccesfulDonation: () {
 
-              if (appUser != null) {
-                tokenPurchasedCount(_streamer!, appUser!);
+              if (_streamer != null) {
+                tokenPurchasedCount(_streamer!);
               }
 
               Future.delayed(Duration(milliseconds: 500), (){
@@ -334,11 +367,10 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
     }
   }
 
-  Future tokenPurchasedCount(AppUser streamer, AppUser user) async {
-    print("streamer email ${streamer.email!}, -> user email ${user.email!}");
+  Future tokenPurchasedCount(AppUser streamer) async {
 
     numberOfTokenPurchased = await _appService.calculateNumberOfTokenPurchased(
-        streamer.email!, user.email!);
+        streamer.email!);
 
     progressValue = calculateProgressBarValue(
         numberOfTokenPurchased, _streamer!.numberOfTokenIssued ?? 0);

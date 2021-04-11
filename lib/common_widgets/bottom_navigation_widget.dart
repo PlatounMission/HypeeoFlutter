@@ -108,6 +108,7 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
                       Spacer(),
                       InkWell(
                         onTap: () {
+
                           AppUser? _user =
                               Provider.of<AppConfig>(context, listen: false)
                                   .appUser;
@@ -123,9 +124,21 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
                             }
 
                             if (_user.isStreamer == true) {
+
+                              if (AutoRouter.of(context).current!.name ==
+                                  StreamerDetailsRoute.name) {
+                                return;
+                              }
+
                               context.router.push(StreamerDetailsRoute());
                               return;
                             } else if (_user.email != "") {
+
+                              if (AutoRouter.of(context).current!.name ==
+                                  UserSummaryRoute.name) {
+                                return;
+                              }
+
                               context.router.push(UserSummaryRoute());
                               return;
                             }

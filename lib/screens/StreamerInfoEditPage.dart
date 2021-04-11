@@ -130,6 +130,7 @@ class _StreamerInfoEditPageState extends State<StreamerInfoEditPage> {
                   height: 20,
                 ),
                 TextField(
+                  keyboardType: TextInputType.number,
                   onChanged: (value) {
                     numberOfTokenToBeIssued = value;
                   },
@@ -157,6 +158,7 @@ class _StreamerInfoEditPageState extends State<StreamerInfoEditPage> {
                   onChanged: (value) {
                     tokenPrice = value;
                   },
+                  keyboardType: TextInputType.number,
                   controller: TextEditingController(text: tokenPrice),
                   style: TextStyle(color: Colors.white),
                   decoration: new InputDecoration(

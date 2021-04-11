@@ -58,7 +58,7 @@ class AppService {
   }
 
   Future<double> calculateNumberOfTokenPurchased(
-      String streamerEmail, String userEmail) async {
+      String streamerEmail) async {
     try {
       CollectionReference tokenPurchased =
           FirebaseFirestore.instance.collection("tokon_purchases");

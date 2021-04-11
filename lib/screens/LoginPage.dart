@@ -120,6 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                         onChanged: (value) {
                           email = value;
                         },
+                        keyboardType: TextInputType.emailAddress,
                         style: TextStyle(fontSize: 15, color: Colors.white),
                         decoration: new InputDecoration(
                           enabledBorder: UnderlineInputBorder(

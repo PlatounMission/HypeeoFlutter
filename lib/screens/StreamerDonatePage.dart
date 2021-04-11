@@ -56,7 +56,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
 
         tokenPurchasedQtyUptoNow =
             await _appService.calculateNumberOfTokenPurchased(
-                _streamer!.email!, appUser!.email!);
+                _streamer!.email!);
       } catch (e) {
         print(e);
       }
