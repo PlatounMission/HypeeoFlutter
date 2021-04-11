@@ -7,6 +7,7 @@ import 'package:hypeeo_app/common_widgets/background_view_widget.dart';
 import 'package:hypeeo_app/common_widgets/bottom_navigation_widget.dart';
 import 'package:hypeeo_app/common_widgets/rounded_button.dart';
 import 'package:hypeeo_app/models/app_user.dart';
+import 'package:hypeeo_app/screens/paypal_payment.dart';
 import 'package:hypeeo_app/services/AppService.dart';
 import 'package:provider/provider.dart';
 
@@ -14,7 +15,6 @@ import '../app_config.dart';
 import '../constants.dart';
 
 class StreamerDonatePage extends StatefulWidget {
-
   final Function? onSuccesfulDonation;
 
   StreamerDonatePage(this.onSuccesfulDonation);
@@ -24,7 +24,6 @@ class StreamerDonatePage extends StatefulWidget {
 }
 
 class _StreamerDonatePageState extends State<StreamerDonatePage> {
-
   AppService _appService = AppService();
 
   AppUser? _streamer;
@@ -38,7 +37,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
   double tokenPurchasedQtyUptoNow = 0;
 
   String? email;
-  
+
   String? password;
 
   @override
@@ -50,14 +49,14 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
   Future initData() async {
     try {
       try {
-
         appUser = Provider.of<AppConfig>(context, listen: false).appUser;
 
-        _streamer = Provider.of<AppConfig>(context, listen: false).selectedStreamer;
+        _streamer =
+            Provider.of<AppConfig>(context, listen: false).selectedStreamer;
 
-        tokenPurchasedQtyUptoNow = await _appService.calculateNumberOfTokenPurchased(
-            _streamer!.email!, appUser!.email!);
-
+        tokenPurchasedQtyUptoNow =
+            await _appService.calculateNumberOfTokenPurchased(
+                _streamer!.email!, appUser!.email!);
       } catch (e) {
         print(e);
       }
@@ -113,17 +112,17 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                           borderRadius: BorderRadius.all(Radius.circular(130)),
                           child: (_streamer?.photoUrl?.isEmpty == true)
                               ? Image.asset(
-                            "assets/user.png",
-                            fit: BoxFit.cover,
-                            width: 100,
-                            height: 100,
-                          )
+                                  "assets/user.png",
+                                  fit: BoxFit.cover,
+                                  width: 100,
+                                  height: 100,
+                                )
                               : Image.network(
-                            _streamer!.photoUrl!,
-                            fit: BoxFit.cover,
-                            width: 100,
-                            height: 100,
-                          ),
+                                  _streamer!.photoUrl!,
+                                  fit: BoxFit.cover,
+                                  width: 100,
+                                  height: 100,
+                                ),
                         ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(0, 15, 0, 5),
@@ -131,12 +130,12 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                             "${shortenNumber(_streamer?.numberOfFollowers ?? 0)} Followers",
                             textAlign: TextAlign.center,
                             style:
-                            Theme.of(context).textTheme.headline6?.copyWith(
-                              color: Color(0xFF535457),
-                              fontFamily: "poppins",
-                              fontWeight: FontWeight.w300,
-                              fontSize: 14,
-                            ),
+                                Theme.of(context).textTheme.headline6?.copyWith(
+                                      color: Color(0xFF535457),
+                                      fontFamily: "poppins",
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 14,
+                                    ),
                           ),
                         ),
                         SizedBox(
@@ -148,13 +147,15 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                             Text(
                               _streamer?.twitchChannel ?? "",
                               textAlign: TextAlign.center,
-                              style:
-                              Theme.of(context).textTheme.headline6?.copyWith(
-                                color: Colors.white,
-                                fontFamily: "poppins",
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline6
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontFamily: "poppins",
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22,
+                                  ),
                             ),
                             IconButton(
                                 icon: Icon(
@@ -242,7 +243,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                         Align(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            "I donate to ${ _streamer?.twitchChannel ?? "" }:",
+                            "I donate to ${_streamer?.twitchChannel ?? ""}:",
                             textAlign: TextAlign.start,
                             style:
                                 Theme.of(context).textTheme.headline6?.copyWith(
@@ -271,7 +272,6 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                               }
                               donationAmount = amount;
                               _calcualteTheTokenAmountToBeReceived();
-
                             },
                             keyboardType: TextInputType.numberWithOptions(
                                 decimal: true, signed: true),
@@ -311,8 +311,9 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                           ),
                           child: TextField(
                             controller: TextEditingController(
-                                text:
-                                    "" + formatDecimalValue(amountOfTokenTobeReceived)),
+                                text: "" +
+                                    formatDecimalValue(
+                                        amountOfTokenTobeReceived)),
                             enabled: false,
                             style: TextStyle(color: Colors.white),
                             decoration: new InputDecoration(
@@ -320,7 +321,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                                   EdgeInsets.fromLTRB(10, 20, 0, 20),
                               suffixIcon: Padding(
                                   padding: EdgeInsets.all(15),
-                                  child: Text( _streamer?.tokenName ?? "" )),
+                                  child: Text(_streamer?.tokenName ?? "")),
                             ),
                           ),
                         ),
@@ -331,9 +332,8 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                           visible: true,
                           child: RoundedButton(
                             title: "DONATE",
-                            onTap: () {
+                            onTap: () async {
                               try {
-
                                 if (donationAmount == 0) {
                                   return;
                                 }
@@ -343,27 +343,72 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                                 }
                                 if (appUser?.email == null &&
                                     (email == null || email!.isEmpty)) {
+
+                                  showErrorSnackBar(context, "Your email is missing");
                                   return;
                                 }
 
-                                CollectionReference purchases =
+                                if (_streamer != null &&
+                                    (_streamer?.paypalLink ?? "") == "" ) {
+                                  showErrorSnackBar(context, "Something went wrong. please try again.");
+                                  return;
+                                }
+
+                                print("donation amount $donationAmount ");
+
+                                CollectionReference apiDetails =
                                     FirebaseFirestore.instance
-                                        .collection("tokon_purchases");
+                                        .collection("api_details");
 
-                                purchases.add({
-                                  "user_email": appUser?.email ?? email,
-                                  "unit_price":
-                                      _streamer?.tokenPrice ?? 0,
-                                  "streamer_email":
-                                  _streamer?.email ?? "",
-                                  "donation_amount": donationAmount,
-                                  "token_count": amountOfTokenTobeReceived,
-                                  "date": DateTime.now()
-                                });
+                                DocumentSnapshot snapshot =
+                                    await apiDetails.doc("paypal").get();
 
-                                context.router.pop();
+                                Map<String, dynamic> _map = snapshot.data();
 
-                                widget.onSuccesfulDonation?.call();
+                                    Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) => PaypalPayment(
+                                      clientId: _map["client_id"],
+                                      clientSecret: _map["client_secret"],
+                                      price: donationAmount,
+                                      streamerPaypal: _streamer?.paypalLink ?? "",
+                                      onFinish: (PaymentStatus status) async {
+                                        // payment done
+
+                                        if (status == PaymentStatus.SUCCESS) {
+
+                                          CollectionReference purchases =
+                                              FirebaseFirestore.instance
+                                                  .collection("tokon_purchases");
+
+                                          purchases.add({
+                                            "user_email": appUser?.email ?? email,
+                                            "token_price":
+                                                _streamer?.tokenPrice ?? 0,
+                                            "streamer_email":
+                                            _streamer?.email ?? "",
+                                            "donation_amount": donationAmount,
+                                            "token_count": amountOfTokenTobeReceived,
+                                            "token_name": _streamer?.tokenName ?? "",
+                                            "twitch_channel": _streamer?.twitchChannel ?? "",
+                                            "is_deleted": false,
+                                            "photo_url": _streamer?.photoUrl ?? "",
+                                            "date": DateTime.now()
+                                          });
+
+                                          Future.delayed(Duration(milliseconds: 10), (){
+                                            widget.onSuccesfulDonation?.call();
+                                            context.router.pop();
+                                          });
+
+                                        } else {
+                                          showErrorSnackBar(context, "Payment cancelled");
+                                        }
+
+                                      },
+                                    ),
+                                  ),
+                                );
 
                               } catch (e) {
                                 print(e);
@@ -374,8 +419,11 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                           ),
                         ),
                         Visibility(
-                          visible: (appUser != null && appUser!.isAnynymous == false),
-                          child: SizedBox(height: 100,),
+                          visible: (appUser != null &&
+                              appUser!.isAnynymous == false),
+                          child: SizedBox(
+                            height: 100,
+                          ),
                         ),
                         SizedBox(
                           height: 20,
@@ -401,13 +449,11 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
   }
 
   void _calcualteTheTokenAmountToBeReceived() {
-
     try {
       double tokenPrice = _streamer?.tokenPrice ?? 0;
 
       if (donationAmount > 0 && tokenPrice > 0) {
-        amountOfTokenTobeReceived =  (donationAmount / tokenPrice);
-
+        amountOfTokenTobeReceived = (donationAmount / tokenPrice);
       } else {
         amountOfTokenTobeReceived = 0;
       }
@@ -420,7 +466,6 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
 
   Future createUserAccount(String email, String password) async {
     try {
-
       showProgress();
 
       if (FirebaseAuth.instance.currentUser.isAnonymous) {
@@ -432,12 +477,9 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
         }
       }
 
-      await FirebaseAuth
-          .instance
-          .createUserWithEmailAndPassword(
-          email: email, password: password);
-
-    } catch(e) {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+    } catch (e) {
       print(e);
       showProgress();
     }

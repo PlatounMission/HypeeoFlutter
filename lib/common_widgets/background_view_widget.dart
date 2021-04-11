@@ -10,6 +10,7 @@ class BackgroundWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      constraints: BoxConstraints.expand(),
       child: child,
       decoration: BoxDecoration(
           image: DecorationImage(

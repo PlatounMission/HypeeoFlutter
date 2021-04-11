@@ -151,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.white),
                           ),
-                          hintText: 'Password'.toUpperCase(),
+                          hintText: 'Password'.toUpperCase() + "  (6 or more digits)",
                           hintStyle: TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -299,7 +299,7 @@ class _LoginPageState extends State<LoginPage> {
                                 }
 
                                 hideProgress();
-                                context.router.pop();
+                                //context.router.pop();
                                 widget.onLoginSuccess?.call();
 
                               } else {
@@ -323,7 +323,7 @@ class _LoginPageState extends State<LoginPage> {
                                 hideProgress();
 
                                 showErrorAlert(
-                                    context, "", "Your password is weak.");
+                                    context, "", "Please check your password. If you are a new user, try to use a strong password.");
 
                               } else if (e.code == 'email-already-in-use') {
 
@@ -404,7 +404,7 @@ class _LoginPageState extends State<LoginPage> {
       callback?.call();
     } catch (e) {
       print(e);
-      //todo notify user to retry with new password...
+      showErrorSnackBar(context, "Please try again");
       hideProgress();
     }
   }

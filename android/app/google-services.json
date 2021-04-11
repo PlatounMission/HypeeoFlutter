@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:168656811240:android:a5dc00024b9c3bfe37c55d",
+        "mobilesdk_app_id": "1:168656811240:android:be62276164547cb137c55d",
         "android_client_info": {
-          "package_name": "com.hypeeo.app"
+          "package_name": "com.hypeeo.android.app"
         }
       },
       "oauth_client": [

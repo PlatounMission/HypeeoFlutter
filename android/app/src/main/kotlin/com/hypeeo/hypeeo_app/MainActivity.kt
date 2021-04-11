@@ -1,4 +1,4 @@
-package com.hypeeo.hypeeo_app
+package com.hypeeo.android.app
 
 import io.flutter.embedding.android.FlutterActivity
 

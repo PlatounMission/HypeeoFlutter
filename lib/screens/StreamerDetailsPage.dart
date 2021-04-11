@@ -67,11 +67,12 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
 
   @override
   Widget build(BuildContext context) {
-    // if (widget.selectedStreamer == null) {
-    //   if (widget.appUser?.isStreamer == true) {
-    //     widget.selectedStreamer = widget.appUser;
-    //   }
-    // }
+
+    if (_streamer == null) {
+      if (appUser?.isStreamer == true) {
+        _streamer = appUser;
+      }
+    }
 
     return BackgroundWidget(
       child: Container(
@@ -137,7 +138,7 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
                       Container(
                         alignment: AlignmentDirectional.topStart,
                         child: Text(
-                          "${formatDecimalToString(numberOfTokenPurchased)} / ${formatDecimalToString(_streamer!.numberOfTokenIssued!)}",
+                          "${formatDecimalToString(numberOfTokenPurchased)} / ${formatDecimalToString(_streamer?.numberOfTokenIssued ?? 0)}",
                           textAlign: TextAlign.start,
                           style:
                               Theme.of(context).textTheme.headline6?.copyWith(
@@ -316,7 +317,14 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
           title: "DONATE",
           onTap: () {
             context.router.push(StreamerDonateRoute(onSuccesfulDonation: () {
-              tokenPurchasedCount(_streamer!, appUser!);
+
+              if (appUser != null) {
+                tokenPurchasedCount(_streamer!, appUser!);
+              }
+
+              Future.delayed(Duration(milliseconds: 500), (){
+                showSuccessSnackBar(context, "Donation succesful!");
+              });
             }));
           });
     } else {

@@ -45,6 +45,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
 
       _isFirebaseInitialized = true;
     } catch(e) {
+      print(e);
       // Set `_error` state to true if Firebase initialization fails
       _isFirebaseInitialized = false;
       _isFirebaseInitializedError = true;
@@ -56,6 +57,8 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
 
     if (_isFirebaseInitializedError) {
       Future.delayed(Duration(microseconds: 2), () async {
+        print("_isFirebaseInitializedError $_isFirebaseInitializedError");
+
         AutoRouter.of(context).push(RetryWidgetRoute(onRetry: () {
           _isFirebaseInitializedError = false;
           initializeData();

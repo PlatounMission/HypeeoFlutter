@@ -60,8 +60,8 @@ class AppService {
   Future<double> calculateNumberOfTokenPurchased(
       String streamerEmail, String userEmail) async {
     try {
-
-      CollectionReference tokenPurchased = FirebaseFirestore.instance.collection("tokon_purchases");
+      CollectionReference tokenPurchased =
+          FirebaseFirestore.instance.collection("tokon_purchases");
 
       QuerySnapshot snapshot = await tokenPurchased
           .where("streamer_email", isEqualTo: streamerEmail)
@@ -69,15 +69,14 @@ class AppService {
 
       double _tokeCount = 0;
 
-      print("doc value 1  is ${ snapshot.docs.length }");
+      print("doc value 1  is ${snapshot.docs.length}");
       snapshot.docs.forEach((element) {
-        print("doc value  2 is ${ element.data()["token_count"] }");
+        print("doc value  2 is ${element.data()["token_count"]}");
 
         _tokeCount += element.data()["token_count"] ?? 0;
       });
 
       return Future.value(_tokeCount);
-
     } catch (e) {
       print(e);
     }

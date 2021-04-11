@@ -26,7 +26,7 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
                 appConfig.appUser?.isAnynymous == true
             ? Container(
                 width: double.infinity,
-                height: 60.0,
+                height: 40.0,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 0),
                   child: Row(
@@ -60,7 +60,7 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
                                   context.router.push(StreamerInfoEditRoute(
                                       onEditSucceeded: () {
 //streamer has signed up. now show the homepage...
-                                    context.router.push(StreamerDetailsRoute());
+                                    context.router.pushAndRemoveUntil(StreamerDetailsRoute(), predicate: (_) => false,);
                                   }));
                                 } catch (e) {
                                   print(e);
