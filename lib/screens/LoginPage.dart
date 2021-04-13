@@ -323,16 +323,17 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                 }
 
+                                hideProgress();
+                                context.router.pop();
+
                                 if (!widget.isStreamer) {
                                   widget.onLoginSuccess?.call(true);
                                 } else {
                                   widget.onLoginSuccess?.call(false);
                                 }
 
-                                await initData();
+                                initData();
 
-                                hideProgress();
-                                context.router.pop();
 
                               } else {
                                 hideProgress();
