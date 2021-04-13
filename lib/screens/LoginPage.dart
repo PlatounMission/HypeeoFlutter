@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:hypeeo_app/common_widgets/background_view_widget.dart';
 import 'package:hypeeo_app/common_widgets/rounded_button.dart';
 import 'package:hypeeo_app/models/app_user.dart';
+import 'package:hypeeo_app/router/router.gr.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
@@ -15,9 +16,9 @@ import '../constants.dart';
 
 class LoginPage extends StatefulWidget {
 
-  final isStreamer;
+  bool isStreamer;
 
-  final Function? onLoginSuccess;
+  final Function(bool refreshContentOnly)? onLoginSuccess;
 
   LoginPage({required this.isStreamer, this.onLoginSuccess});
 
@@ -26,7 +27,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   FirebaseAuth auth = FirebaseAuth.instance;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -38,14 +38,19 @@ class _LoginPageState extends State<LoginPage> {
   String twitchChannel = "";
   String numberOfFollowers = "";
 
+  bool shouldSignup = true;
+
+  bool obscureText = true;
+
   @override
   void initState() {
     super.initState();
+
+    initData();
   }
 
   @override
   Widget build(BuildContext context) {
-
     if (widget.isStreamer) {
       loginDesc =
           "Please note that your account will need to be verified before appearing on the app "
@@ -64,14 +69,14 @@ class _LoginPageState extends State<LoginPage> {
             Align(
               alignment: Alignment.topCenter,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(30, 20, 30, 0),
+                padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
                 child: Container(
                   child: Column(
                     children: [
                       Image.asset(
                         "assets/dotted_border.png",
-                        width: 420,
-                        height: 320,
+                        width: 400,
+                        height: 300,
                       ),
                     ],
                   ),
@@ -88,9 +93,9 @@ class _LoginPageState extends State<LoginPage> {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 80, 0, 10),
                         child: Text(
-                          widget.isStreamer
-                              ? "LOGIN AS A STREAMER"
-                              : "LOGIN AS A FAN",
+                          shouldSignup
+                              ? "SIGNUP"
+                              : "LOGIN",
                           textAlign: TextAlign.center,
                           style:
                               Theme.of(context).textTheme.headline6?.copyWith(
@@ -114,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       SizedBox(
-                        height: 100,
+                        height: 40,
                       ),
                       TextField(
                         onChanged: (value) {
@@ -137,22 +142,35 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       SizedBox(
-                        height: 20,
+                        height: 15,
                       ),
                       TextField(
                         onChanged: (value) {
                           password = value;
                         },
-                        obscureText: true,
+                        obscureText: obscureText,
                         style: TextStyle(color: Colors.white),
                         decoration: new InputDecoration(
+                          suffixIcon: InkWell(
+                            onTap: () {
+                              setState(() {
+                                obscureText = !obscureText;
+                              });
+                            },
+                            child: Icon(
+                              obscureText ? Icons.visibility : Icons.visibility_off,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                          ),
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.white),
                           ),
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.white),
                           ),
-                          hintText: 'Password'.toUpperCase() + "  (6 or more digits)",
+                          hintText:
+                              'Password'.toUpperCase() + "  (6 or more digits)",
                           hintStyle: TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -160,11 +178,11 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       Visibility(
-                        visible: widget.isStreamer,
+                        visible: widget.isStreamer && shouldSignup,
                         child: Column(
                           children: [
                             SizedBox(
-                              height: 20,
+                              height: 15,
                             ),
                             TextField(
                               onChanged: (value) {
@@ -186,7 +204,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             SizedBox(
-                              height: 20,
+                              height: 10,
                             ),
                             TextField(
                               onChanged: (value) {
@@ -212,10 +230,10 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       SizedBox(
-                        height: 60,
+                        height: 30,
                       ),
                       RoundedButton(
-                          title: "LOGIN",
+                          title: shouldSignup ? "SIGN UP" : "LOGIN",
                           onTap: () async {
                             try {
                               if (email.isEmpty) {
@@ -249,14 +267,18 @@ class _LoginPageState extends State<LoginPage> {
 
                               showProgress();
 
-                              if (auth.currentUser != null && auth.currentUser.isAnonymous) {
+                              if (auth.currentUser != null &&
+                                  auth.currentUser.isAnonymous) {
                                 try {
                                   await auth.currentUser.delete();
 
-                                  print("current user is ${auth.currentUser.email}");
+                                  print(
+                                      "current user is ${auth.currentUser.email}");
                                 } catch (e) {
                                   print(e);
                                 }
+                              } else if (auth.currentUser != null) {
+                                await auth.signOut();
                               }
 
                               UserCredential _credz = await FirebaseAuth
@@ -265,23 +287,23 @@ class _LoginPageState extends State<LoginPage> {
                                       email: email, password: password);
 
                               if (_credz.user != null) {
-
                                 CollectionReference users =
-                                firestore.collection('users');
+                                    firestore.collection('users');
 
                                 if (widget.isStreamer) {
+
                                   try {
-
-                                    await users.doc(email).set({
-                                      "twitch_channel": twitchChannel,
-                                      "no_of_followers": numberOfFollowers,
-                                      "email": email,
-                                      "photo_url": "",
-                                      "is_streamer_validated": false,
-                                      "is_streamer": true,
-                                    });
-
-
+                                    DocumentSnapshot _exist = await users.doc(email).get();
+                                    if (!_exist.exists) {
+                                      await users.doc(email).set({
+                                        "twitch_channel": twitchChannel,
+                                        "no_of_followers": numberOfFollowers,
+                                        "email": email,
+                                        "photo_url": "",
+                                        "is_streamer_validated": false,
+                                        "is_streamer": true,
+                                      });
+                                    }
                                   } catch (e) {
                                     print(e);
                                     hideProgress();
@@ -291,48 +313,54 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                 } else {
 
-                                  await users.doc(email).set({
-                                    "email": email,
-                                    "is_streamer": false,
-                                    "is_deleted": false,
-                                  });
-
+                                  DocumentSnapshot _exist = await users.doc(email).get();
+                                  if (!_exist.exists) {
+                                    await users.doc(email).set({
+                                      "email": email,
+                                      "is_streamer": false,
+                                      "is_deleted": false,
+                                    });
+                                  }
                                 }
 
+                                if (!widget.isStreamer) {
+                                  widget.onLoginSuccess?.call(true);
+                                } else {
+                                  widget.onLoginSuccess?.call(false);
+                                }
+
+                                await initData();
+
                                 hideProgress();
-                                //context.router.pop();
-                                widget.onLoginSuccess?.call();
+                                context.router.pop();
 
                               } else {
                                 hideProgress();
                               }
 
-                              //setup local user...
-                              Provider.of<AppConfig>(context, listen: false)
-                                  .appUser = AppUser.map({
-                                "twitch_channel": twitchChannel,
-                                "no_of_followers": numberOfFollowers,
-                                "email": email,
-                                "is_streamer_validated": false,
-                                "is_streamer": widget.isStreamer,
-                              });
-
+                              // //setup local user...
+                              // Provider.of<AppConfig>(context, listen: false)
+                              //     .appUser = AppUser.map({
+                              //   "twitch_channel": twitchChannel,
+                              //   "no_of_followers": numberOfFollowers,
+                              //   "email": email,
+                              //   "is_streamer_validated": false,
+                              //   "is_streamer": widget.isStreamer,
+                              // });
                             } on FirebaseAuthException catch (e) {
-
                               if (e.code == 'weak-password') {
-
                                 hideProgress();
 
-                                showErrorAlert(
-                                    context, "", "Please check your password. If you are a new user, try to use a strong password.");
-
+                                showErrorAlert(context, "",
+                                    "Please check your password. If you are a new user, try to use a strong password.");
                               } else if (e.code == 'email-already-in-use') {
-
                                 loginWithExistingCrdentials(email, password,
                                     () {
                                   hideProgress();
                                   context.router.pop();
-                                  widget.onLoginSuccess?.call();
+
+                                  widget.onLoginSuccess?.call(true);
+
                                 });
                               } else {
                                 hideProgress();
@@ -348,6 +376,44 @@ class _LoginPageState extends State<LoginPage> {
                                   "Something went wrong. Please try again.");
                             }
                           }),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Visibility(
+                        visible: true,
+                        child: GestureDetector(
+                          child: Text("Forgot Password?"),
+                          onTap: () {
+
+                            context.router.replace(ForgetPasswordRoute());
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Visibility(
+                        visible: shouldSignup,
+                        child: GestureDetector(
+                          child: Text("Already have an account?"),
+                          onTap: () {
+
+                            showProgress();
+
+                            Future.delayed(Duration(milliseconds: 400), () {
+                              hideProgress();
+                              setState(() {
+                                widget.isStreamer = false;
+                                shouldSignup = false;
+                              });
+                            });
+
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
                     ],
                   ),
                 ),
@@ -361,13 +427,13 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         try {
                           context.router.pop();
-                        } catch(e) {
+                        } catch (e) {
                           print(e);
                         }
                       },
                       child: Icon(
                         Icons.arrow_back,
-                        size: 30,
+                        size: 25,
                         color: Colors.white,
                       )),
                 )),
@@ -395,7 +461,8 @@ class _LoginPageState extends State<LoginPage> {
         Provider.of<AppConfig>(context, listen: false).appUser =
             AppUser.map(_map);
 
-        print("user assign to provider  ${ Provider.of<AppConfig>(context, listen: false).appUser?.email ?? "m..." }");
+        print(
+            "user assign to provider  ${Provider.of<AppConfig>(context, listen: false).appUser?.email ?? "m..."}");
       } else {
         if (auth.currentUser != null) {
           Provider.of<AppConfig>(context, listen: false).appUser =
@@ -407,6 +474,30 @@ class _LoginPageState extends State<LoginPage> {
       print(e);
       showErrorSnackBar(context, "Please try again");
       hideProgress();
+    }
+  }
+
+  Future initData() async {
+    try {
+
+      String email = auth.currentUser?.email ?? "";
+
+      CollectionReference users =
+      FirebaseFirestore.instance.collection('users');
+
+      DocumentReference _docRef = users.doc(email);
+
+      DocumentSnapshot snapshot = await _docRef.get();
+
+      if (snapshot.exists) {
+        Map<String, dynamic> _map = snapshot.data();
+
+        Provider.of<AppConfig>(context, listen: false).appUser =
+            AppUser.map(_map);
+
+      }
+    } catch(e) {
+      print(e);
     }
   }
 }

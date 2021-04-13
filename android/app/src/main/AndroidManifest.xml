@@ -5,8 +5,11 @@
 
    <application
         android:label="Hypeeo App"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+       >
         <activity
+            android:screenOrientation="portrait"
             android:usesCleartextTraffic="true"
             android:name=".MainActivity"
             android:launchMode="singleTop"

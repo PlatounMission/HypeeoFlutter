@@ -6,17 +6,18 @@
 
 import 'package:auto_route/auto_route.dart' as _i1;
 
-import '../screens/AdminPage.dart' as _i11;
+import '../screens/AdminPage.dart' as _i12;
+import '../screens/forget_password_page.dart' as _i5;
 import '../screens/home_page.dart' as _i2;
 import '../screens/LoginPage.dart' as _i4;
-import '../screens/RetryWidgetPage.dart' as _i12;
+import '../screens/RetryWidgetPage.dart' as _i13;
 import '../screens/splash_screen.dart' as _i3;
-import '../screens/StreamerDetailsPage.dart' as _i5;
-import '../screens/StreamerDonatePage.dart' as _i6;
-import '../screens/StreamerInfoEditPage.dart' as _i7;
-import '../screens/StreamerInfoValidationPage.dart' as _i8;
-import '../screens/StreamerListPage.dart' as _i9;
-import '../screens/UserSummaryPage.dart' as _i10;
+import '../screens/StreamerDetailsPage.dart' as _i6;
+import '../screens/StreamerDonatePage.dart' as _i7;
+import '../screens/StreamerInfoEditPage.dart' as _i8;
+import '../screens/StreamerInfoValidationPage.dart' as _i9;
+import '../screens/StreamerListPage.dart' as _i10;
+import '../screens/UserSummaryPage.dart' as _i11;
 
 class AppRouter extends _i1.RootStackRouter {
   AppRouter();
@@ -44,14 +45,22 @@ class AppRouter extends _i1.RootStackRouter {
           opaque: true,
           barrierDismissible: false);
     },
+    ForgetPasswordRoute.name: (entry) {
+      return _i1.CustomPage(
+          entry: entry,
+          child: _i5.ForgetPasswordPage(),
+          transitionsBuilder: _i1.TransitionsBuilders.slideBottom,
+          opaque: true,
+          barrierDismissible: false);
+    },
     StreamerDetailsRoute.name: (entry) {
-      return _i1.MaterialPageX(entry: entry, child: _i5.StreamerDetailsPage());
+      return _i1.MaterialPageX(entry: entry, child: _i6.StreamerDetailsPage());
     },
     StreamerDonateRoute.name: (entry) {
       var args = entry.routeData.argsAs<StreamerDonateRouteArgs>();
       return _i1.MaterialPageX(
           entry: entry,
-          child: _i6.StreamerDonatePage(args.onSuccesfulDonation));
+          child: _i7.StreamerDonatePage(args.onSuccesfulDonation));
     },
     StreamerInfoEditRoute.name: (entry) {
       var args = entry.routeData.argsAs<StreamerInfoEditRouteArgs>(
@@ -59,25 +68,25 @@ class AppRouter extends _i1.RootStackRouter {
       return _i1.MaterialPageX(
           entry: entry,
           child:
-              _i7.StreamerInfoEditPage(onEditSucceeded: args.onEditSucceeded));
+              _i8.StreamerInfoEditPage(onEditSucceeded: args.onEditSucceeded));
     },
     StreamerInfoValidationRoute.name: (entry) {
       return _i1.MaterialPageX(
-          entry: entry, child: _i8.StreamerInfoValidationPage());
+          entry: entry, child: _i9.StreamerInfoValidationPage());
     },
     StreamerListRoute.name: (entry) {
-      return _i1.MaterialPageX(entry: entry, child: _i9.StreamerListPage());
+      return _i1.MaterialPageX(entry: entry, child: _i10.StreamerListPage());
     },
     UserSummaryRoute.name: (entry) {
-      return _i1.MaterialPageX(entry: entry, child: _i10.UserSummaryPage());
+      return _i1.MaterialPageX(entry: entry, child: _i11.UserSummaryPage());
     },
     AdminRoute.name: (entry) {
-      return _i1.MaterialPageX(entry: entry, child: _i11.AdminPage());
+      return _i1.MaterialPageX(entry: entry, child: _i12.AdminPage());
     },
     RetryWidgetRoute.name: (entry) {
       var args = entry.routeData.argsAs<RetryWidgetRouteArgs>();
       return _i1.MaterialPageX(
-          entry: entry, child: _i12.RetryWidgetPage(args.onRetry, args.mesage));
+          entry: entry, child: _i13.RetryWidgetPage(args.onRetry, args.mesage));
     }
   };
 
@@ -86,14 +95,20 @@ class AppRouter extends _i1.RootStackRouter {
         _i1.RouteConfig(HomeRoute.name, path: '/'),
         _i1.RouteConfig(SplashScreenRoute.name, path: '/'),
         _i1.RouteConfig(LoginRoute.name, path: '/login-page'),
-        _i1.RouteConfig(StreamerDetailsRoute.name, path: '/'),
-        _i1.RouteConfig(StreamerDonateRoute.name, path: '/'),
-        _i1.RouteConfig(StreamerInfoEditRoute.name, path: '/'),
-        _i1.RouteConfig(StreamerInfoValidationRoute.name, path: '/'),
-        _i1.RouteConfig(StreamerListRoute.name, path: '/'),
-        _i1.RouteConfig(UserSummaryRoute.name, path: '/'),
-        _i1.RouteConfig(AdminRoute.name, path: '/'),
-        _i1.RouteConfig(RetryWidgetRoute.name, path: '/'),
+        _i1.RouteConfig(ForgetPasswordRoute.name,
+            path: '/forget-password-page'),
+        _i1.RouteConfig(StreamerDetailsRoute.name,
+            path: '/streamer-details-page'),
+        _i1.RouteConfig(StreamerDonateRoute.name,
+            path: '/streamer-donate-page'),
+        _i1.RouteConfig(StreamerInfoEditRoute.name,
+            path: '/streamer-info-edit-page'),
+        _i1.RouteConfig(StreamerInfoValidationRoute.name,
+            path: '/streamer-info-validation-page'),
+        _i1.RouteConfig(StreamerListRoute.name, path: '/streamer-list-page'),
+        _i1.RouteConfig(UserSummaryRoute.name, path: '/user-summary-page'),
+        _i1.RouteConfig(AdminRoute.name, path: '/admin-page'),
+        _i1.RouteConfig(RetryWidgetRoute.name, path: '/retry-widget-page'),
         _i1.RouteConfig('*#redirect',
             path: '*', redirectTo: '/', fullMatch: true)
       ];
@@ -112,7 +127,7 @@ class SplashScreenRoute extends _i1.PageRouteInfo {
 }
 
 class LoginRoute extends _i1.PageRouteInfo<LoginRouteArgs> {
-  LoginRoute({required dynamic isStreamer, Function? onLoginSuccess})
+  LoginRoute({required bool isStreamer, dynamic Function(bool)? onLoginSuccess})
       : super(name,
             path: '/login-page',
             args: LoginRouteArgs(
@@ -124,13 +139,19 @@ class LoginRoute extends _i1.PageRouteInfo<LoginRouteArgs> {
 class LoginRouteArgs {
   const LoginRouteArgs({required this.isStreamer, this.onLoginSuccess});
 
-  final dynamic isStreamer;
+  final bool isStreamer;
 
-  final Function? onLoginSuccess;
+  final dynamic Function(bool)? onLoginSuccess;
+}
+
+class ForgetPasswordRoute extends _i1.PageRouteInfo {
+  const ForgetPasswordRoute() : super(name, path: '/forget-password-page');
+
+  static const String name = 'ForgetPasswordRoute';
 }
 
 class StreamerDetailsRoute extends _i1.PageRouteInfo {
-  const StreamerDetailsRoute() : super(name, path: '/');
+  const StreamerDetailsRoute() : super(name, path: '/streamer-details-page');
 
   static const String name = 'StreamerDetailsRoute';
 }
@@ -138,7 +159,7 @@ class StreamerDetailsRoute extends _i1.PageRouteInfo {
 class StreamerDonateRoute extends _i1.PageRouteInfo<StreamerDonateRouteArgs> {
   StreamerDonateRoute({required Function? onSuccesfulDonation})
       : super(name,
-            path: '/',
+            path: '/streamer-donate-page',
             args: StreamerDonateRouteArgs(
                 onSuccesfulDonation: onSuccesfulDonation));
 
@@ -155,7 +176,7 @@ class StreamerInfoEditRoute
     extends _i1.PageRouteInfo<StreamerInfoEditRouteArgs> {
   StreamerInfoEditRoute({Function? onEditSucceeded})
       : super(name,
-            path: '/',
+            path: '/streamer-info-edit-page',
             args: StreamerInfoEditRouteArgs(onEditSucceeded: onEditSucceeded));
 
   static const String name = 'StreamerInfoEditRoute';
@@ -168,25 +189,26 @@ class StreamerInfoEditRouteArgs {
 }
 
 class StreamerInfoValidationRoute extends _i1.PageRouteInfo {
-  const StreamerInfoValidationRoute() : super(name, path: '/');
+  const StreamerInfoValidationRoute()
+      : super(name, path: '/streamer-info-validation-page');
 
   static const String name = 'StreamerInfoValidationRoute';
 }
 
 class StreamerListRoute extends _i1.PageRouteInfo {
-  const StreamerListRoute() : super(name, path: '/');
+  const StreamerListRoute() : super(name, path: '/streamer-list-page');
 
   static const String name = 'StreamerListRoute';
 }
 
 class UserSummaryRoute extends _i1.PageRouteInfo {
-  const UserSummaryRoute() : super(name, path: '/');
+  const UserSummaryRoute() : super(name, path: '/user-summary-page');
 
   static const String name = 'UserSummaryRoute';
 }
 
 class AdminRoute extends _i1.PageRouteInfo {
-  const AdminRoute() : super(name, path: '/');
+  const AdminRoute() : super(name, path: '/admin-page');
 
   static const String name = 'AdminRoute';
 }
@@ -194,7 +216,7 @@ class AdminRoute extends _i1.PageRouteInfo {
 class RetryWidgetRoute extends _i1.PageRouteInfo<RetryWidgetRouteArgs> {
   RetryWidgetRoute({required Function? onRetry, required String mesage})
       : super(name,
-            path: '/',
+            path: '/retry-widget-page',
             args: RetryWidgetRouteArgs(onRetry: onRetry, mesage: mesage));
 
   static const String name = 'RetryWidgetRoute';

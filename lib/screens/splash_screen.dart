@@ -57,8 +57,6 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
 
     if (_isFirebaseInitializedError) {
       Future.delayed(Duration(microseconds: 2), () async {
-        print("_isFirebaseInitializedError $_isFirebaseInitializedError");
-
         AutoRouter.of(context).push(RetryWidgetRoute(onRetry: () {
           _isFirebaseInitializedError = false;
           initializeData();

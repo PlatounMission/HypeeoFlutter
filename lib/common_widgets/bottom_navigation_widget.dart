@@ -36,7 +36,7 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
 
                           context.router.push(LoginRoute(
                               isStreamer: false,
-                              onLoginSuccess: () {
+                              onLoginSuccess: (bool refreshContentOnly) {
                                 setState(() {});
                                 widget.onLoginSuccess?.call();
                               }));
@@ -52,18 +52,23 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
                       Spacer(),
                       InkWell(
                         onTap: () {
-                          print("on streamer pressed...");
                           context.router.push(LoginRoute(
                               isStreamer: true,
-                              onLoginSuccess: () {
-                                try {
-                                  context.router.push(StreamerInfoEditRoute(
-                                      onEditSucceeded: () {
+                              onLoginSuccess: (bool refreshContentOnly) {
+
+                                if (refreshContentOnly) {
+                                  setState(() {});
+                                  widget.onLoginSuccess?.call();
+                                } else {
+                                  try {
+                                    context.router.push(StreamerInfoEditRoute(
+                                        onEditSucceeded: () {
 //streamer has signed up. now show the homepage...
-                                    context.router.pushAndRemoveUntil(StreamerDetailsRoute(), predicate: (_) => false,);
-                                  }));
-                                } catch (e) {
-                                  print(e);
+                                          context.router.pushAndRemoveUntil(StreamerDetailsRoute(), predicate: (_) => false,);
+                                        }));
+                                  } catch (e) {
+                                    print(e);
+                                  }
                                 }
                               }));
                         },

@@ -223,7 +223,7 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                                   padding:
                                       const EdgeInsets.fromLTRB(50, 20, 50, 20),
                                   child: Text(
-                                    "Please note that theee informations will be used to your account. If the informations are erroned, you may not receive your tokens.",
+                                    "Please note that your email will be used to create your account. If the information is erroned, you may not receive your tokens",
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context)
                                         .textTheme
@@ -353,8 +353,6 @@ class _StreamerDonatePageState extends State<StreamerDonatePage> {
                                   showErrorSnackBar(context, "Something went wrong. please try again.");
                                   return;
                                 }
-
-                                print("donation amount $donationAmount ");
 
                                 CollectionReference apiDetails =
                                     FirebaseFirestore.instance

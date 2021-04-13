@@ -24,8 +24,6 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
 
-    print("isValidatedStreamers is ${isValidatedStreamers}");
-
     return BackgroundWidget(
       child: Padding(
         padding: EdgeInsets.fromLTRB(20, 40, 20, 20),
@@ -61,19 +59,24 @@ class _AdminPageState extends State<AdminPage> {
                         },
                         child: Icon(
                           Icons.arrow_back,
-                          size: 30,
+                          size: 25,
                           color: Colors.white,
                         )),
                     Spacer(),
                     TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           try {
+
+                            await FirebaseAuth.instance.signOut();
+
+                            Provider.of<AppConfig>(context, listen: false)
+                                .appUser
+                                ?.isAnynymous = true;
+
                             Provider.of<AppConfig>(context, listen: false)
                                 .appUser = null;
                             Provider.of<AppConfig>(context, listen: false)
                                 .selectedStreamer = null;
-
-                            FirebaseAuth.instance.signOut();
 
                             context.router.pushAndRemoveUntil(HomeRoute(),
                                 predicate: (_) => false);
@@ -83,7 +86,7 @@ class _AdminPageState extends State<AdminPage> {
                         },
                         child: Icon(
                           Icons.logout,
-                          size: 30,
+                          size: 25,
                           color: Colors.white,
                         )),
                   ],
@@ -336,8 +339,6 @@ class _AdminPageState extends State<AdminPage> {
                                     onPressed: () async {
                                       try {
                                         showProgress();
-
-                                        print("email is ${_map["email"]}");
 
                                         CollectionReference users =
                                             FirebaseFirestore.instance

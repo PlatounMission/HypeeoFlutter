@@ -9,6 +9,7 @@ import 'package:hypeeo_app/screens/StreamerInfoEditPage.dart';
 import 'package:hypeeo_app/screens/StreamerInfoValidationPage.dart';
 import 'package:hypeeo_app/screens/StreamerListPage.dart';
 import 'package:hypeeo_app/screens/UserSummaryPage.dart';
+import 'package:hypeeo_app/screens/forget_password_page.dart';
 import 'package:hypeeo_app/screens/home_page.dart';
 import 'package:hypeeo_app/screens/splash_screen.dart';
 
@@ -25,14 +26,18 @@ import 'package:hypeeo_app/screens/splash_screen.dart';
       page: LoginPage,
       transitionsBuilder: TransitionsBuilders.slideBottom,
     ),
-    AutoRoute(page: StreamerDetailsPage, initial: true),
-    AutoRoute(page: StreamerDonatePage, initial: true),
-    AutoRoute(page: StreamerInfoEditPage, initial: true),
-    AutoRoute(page: StreamerInfoValidationPage, initial: true),
-    AutoRoute(page: StreamerListPage, initial: true),
-    AutoRoute(page: UserSummaryPage, initial: true),
-    AutoRoute(page: AdminPage, initial: true),
-    AutoRoute(page: RetryWidgetPage, initial: true),
+    CustomRoute(
+      page: ForgetPasswordPage,
+      transitionsBuilder: TransitionsBuilders.slideBottom,
+    ),
+    AutoRoute(page: StreamerDetailsPage),
+    AutoRoute(page: StreamerDonatePage),
+    AutoRoute(page: StreamerInfoEditPage),
+    AutoRoute(page: StreamerInfoValidationPage),
+    AutoRoute(page: StreamerListPage),
+    AutoRoute(page: UserSummaryPage),
+    AutoRoute(page: AdminPage),
+    AutoRoute(page: RetryWidgetPage),
 
     RedirectRoute(path: '*', redirectTo: '/'),
   ],

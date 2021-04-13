@@ -45,24 +45,28 @@ class _StreamerInfoEditPageState extends State<StreamerInfoEditPage> {
   }
 
   fillExistingInfo() async {
-    Map<String, dynamic>? _map = await AppService().retrieveLoggedinUserInfo();
+    try {
+      Map<String, dynamic>? _map = await AppService().retrieveLoggedinUserInfo();
 
-    if (_map != null) {
-      Provider.of<AppConfig>(context, listen: false).appUser =
-          AppUser.map(_map);
+      if (_map != null) {
+        Provider.of<AppConfig>(context, listen: false).appUser =
+            AppUser.map(_map);
 
-      _streamer = AppUser.map(_map);
+        _streamer = AppUser.map(_map);
 
-      tokenName = _streamer?.tokenName ?? "";
+        tokenName = _streamer?.tokenName ?? "";
 
-      numberOfTokenToBeIssued = (_streamer?.numberOfTokenIssued == 0
-              ? "" : _streamer?.numberOfTokenIssued).toString();
+        numberOfTokenToBeIssued = (_streamer?.numberOfTokenIssued == 0
+            ? "" : _streamer?.numberOfTokenIssued).toString();
 
-      tokenPrice =
-          (_streamer?.tokenPrice == 0 ? "" : _streamer?.tokenPrice).toString();
-      paypalLink = _streamer?.paypalLink ?? "";
+        tokenPrice =
+            (_streamer?.tokenPrice == 0 ? "" : _streamer?.tokenPrice).toString();
+        paypalLink = _streamer?.paypalLink ?? "";
 
-      setState(() {});
+        setState(() {});
+      }
+    } catch(e) {
+      print(e);
     }
   }
 
@@ -110,7 +114,7 @@ class _StreamerInfoEditPageState extends State<StreamerInfoEditPage> {
                 ),
                 TextField(
                   onChanged: (value) {
-                    tokenName = value;
+                    tokenName = value.trim();
                   },
                   controller: TextEditingController(text: tokenName),
                   style: TextStyle(color: Colors.white),
@@ -178,7 +182,7 @@ class _StreamerInfoEditPageState extends State<StreamerInfoEditPage> {
                 ),
                 TextField(
                   onChanged: (value) {
-                    paypalLink = value;
+                    paypalLink = value.trim();
                   },
                   controller: TextEditingController(text: paypalLink),
                   style: TextStyle(color: Colors.white),
@@ -240,7 +244,11 @@ class _StreamerInfoEditPageState extends State<StreamerInfoEditPage> {
                           "is_deleted": false,
                         });
 
+                        await fillExistingInfo();
+
+
                         hideProgress();
+
                         context.router.pop();
                         widget.onEditSucceeded?.call();
                       } else {

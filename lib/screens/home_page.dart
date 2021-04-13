@@ -31,11 +31,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     vsync: this,
   )..forward();
 
-  // late Animation<double> _animation = CurvedAnimation(
-  //   parent: _controller,
-  //   curve: Curves.fastOutSlowIn,
-  // );
-
   late Animation<Offset> _offsetAnimation = Tween<Offset>(
     begin: const Offset(-0.2, 0.0),
     end: Offset.zero,
@@ -132,74 +127,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               searchText = value;
                             },
                             hintText:
-                                "Enter the streamer name you’re looking for",
+                                "Enter the twitch channel you're looking for",
                             onSuffixPressed: () async {
 
-                              FocusScope.of(context).unfocus();
+                              try {
+                                FocusScope.of(context).unfocus();
 
-                              if (searchText.isEmpty) {
-                                return;
+                                if (_appUser?.email  == KADMIN_EMAIL) {
+                                  showErrorSnackBar(context, "Admin cannot donate for streamers");
+                                  return;
+                                }
+
+                                if (_appUser?.isStreamer  == true) {
+                                  showErrorSnackBar(context, "Streamers are not allowed. May be in the future.");
+                                  return;
+                                }
+
+
+                                searchStreamers();
+                              } catch(e) {
+                                print(e);
                               }
 
-                              print("_appUser!.email ${_appUser?.email}");
-                              if (_appUser != null &&
-                              (_appUser!.email  == KADMIN_EMAIL)) {
-                                showErrorSnackBar(context, "Admin cannot donate for streamers");
-                                return;
-                              }
-
-                              if (_appUser != null &&
-                                  (_appUser!.isStreamer  == true)) {
-                                showErrorSnackBar(context, "Streamers are not allowed. May be in the future.");
-                                return;
-                              }
-
-
-                              showProgress();
-
-                              FirebaseAuth.instance.currentUser?.reload();
-
-                              if (FirebaseAuth.instance.currentUser == null) {
-                                _appService.loginAnonymously();
-                              }
-
-                              Map<String, dynamic>? _map =
-                                  await searchStreamer(searchText);
-
-                              hideProgress();
-
-                              if (_map != null) {
-
-                                AppUser _usr = AppUser.map(_map);
-
-                                Provider.of<AppConfig>(context, listen: false)
-                                    .selectedStreamer = _usr;
-
-                                context.router.push(
-                                    StreamerDetailsRoute());
-                              } else {
-                                showErrorSnackBar(context, 'No streamers found.');
-                                print("no streamer found...");
-                              }
-
-                              return;
-                              //todo remove this 'false' later...
-                              if (false &&
-                                  _appUser != null &&
-                                  (_appUser!.isStreamer ?? false)) {
-                                showErrorAlert(context, "",
-                                    "Sorry! Streamers are not allowed to donate at this moment. We are working on it.");
-                              }
-
-                              //todo remove this ...
-                              FirebaseAuth.instance.signOut();
-                              Provider.of<AppConfig>(context, listen: false)
-                                  .appUser = null;
-                              setState(() {});
-
-                              //context.router.push(StreamerDetailsRoute());
-
-                              //todo search for streamers from registered streamers...
                             },
                           ),
                         ],
@@ -215,8 +164,61 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  void searchStreamers() async {
+
+    try {
+
+      searchText = searchText.trim();
+
+      if (searchText.isEmpty) {
+        return;
+      }
+
+      Map<String, dynamic>? _map = await searchStreamer(searchText);
+
+      AppUser? _usr = (_map != null) ? AppUser.map(_map) : null;
+
+      if (_usr != null && _usr.isStreamer == true) {
+
+        if (_appUser?.email  == KADMIN_EMAIL) {
+          showErrorSnackBar(context, "Admin cannot donate for streamers");
+          return;
+        }
+
+        if (_appUser?.isStreamer  == true) {
+          showErrorSnackBar(context, "Streamers are not allowed. May be in the future.");
+          return;
+        }
+
+        showProgress();
+
+        Future.delayed(Duration(milliseconds: 400), () {
+
+          if (FirebaseAuth.instance.currentUser == null) {
+            _appService.loginAnonymously();
+          }
+
+          Provider.of<AppConfig>(context, listen: false)
+              .selectedStreamer = _usr;
+
+          hideProgress();
+
+          context.router.push(
+              StreamerDetailsRoute());
+        });
+      } else {
+        showErrorSnackBar(context, 'No streamers found.');
+      }
+
+    } catch(e) {
+      showErrorSnackBar(context, 'Something went wrong. Please try again');
+      print("no streamer found...");
+    }
+  }
+
   Future<void> getLoggedinUserInfo() async {
     try {
+
       Map<String, dynamic>? _map = await _appService.retrieveLoggedinUserInfo();
 
       if (_map != null) {

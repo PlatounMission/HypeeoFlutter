@@ -34,7 +34,6 @@ class _UserSummaryPageState extends State<UserSummaryPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("user email is ${_appUser?.email ?? ""}");
 
     return BackgroundWidget(
       child: Padding(
@@ -56,7 +55,8 @@ class _UserSummaryPageState extends State<UserSummaryPage> {
                             fontSize: 30,
                           ),
                     ),
-                  ),Padding(
+                  ),
+                  Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                     child: Text(
                       _appUser?.email ?? "",
@@ -265,14 +265,18 @@ class _UserSummaryPageState extends State<UserSummaryPage> {
                         },
                         child: Icon(
                           Icons.arrow_back,
-                          size: 30,
+                          size: 25,
                           color: Colors.white,
                         )),
                     Spacer(),
                     TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           try {
-                            FirebaseAuth.instance.signOut();
+                            await FirebaseAuth.instance.signOut();
+
+                            Provider.of<AppConfig>(context, listen: false)
+                                .appUser
+                                ?.isAnynymous = true;
 
                             Provider.of<AppConfig>(context, listen: false)
                                 .appUser = null;
@@ -287,7 +291,7 @@ class _UserSummaryPageState extends State<UserSummaryPage> {
                         },
                         child: Icon(
                           Icons.logout,
-                          size: 30,
+                          size: 25,
                           color: Colors.white,
                         )),
                   ],

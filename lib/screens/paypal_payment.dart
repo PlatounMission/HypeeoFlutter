@@ -94,6 +94,11 @@ class PaypalPaymentState extends State<PaypalPayment> {
       }
     });
 
+
+    showProgress();
+    Future.delayed(Duration(seconds: 3), () {
+      hideProgress();
+    });
   }
 
   Map<String, dynamic> getOrderParams() {
@@ -122,7 +127,6 @@ class PaypalPaymentState extends State<PaypalPayment> {
 
   @override
   Widget build(BuildContext context) {
-    print("build checkoutUrl $checkoutUrl");
 
     if (checkoutUrl != null) {
       return Scaffold(

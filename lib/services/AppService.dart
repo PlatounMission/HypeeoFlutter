@@ -69,10 +69,7 @@ class AppService {
 
       double _tokeCount = 0;
 
-      print("doc value 1  is ${snapshot.docs.length}");
       snapshot.docs.forEach((element) {
-        print("doc value  2 is ${element.data()["token_count"]}");
-
         _tokeCount += element.data()["token_count"] ?? 0;
       });
 

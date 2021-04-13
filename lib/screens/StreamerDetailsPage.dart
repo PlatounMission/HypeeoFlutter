@@ -306,34 +306,41 @@ class _StreamerDetailsPageState extends State<StreamerDetailsPage>
               ),
               Align(
                 alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                  child: Row(
-                    children: [
-                      Spacer(),
-                      TextButton(
-                          onPressed: () {
-                            try {
+                child: Visibility(
+                  visible: (appUser?.isStreamer == true),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                    child: Row(
+                      children: [
+                        Spacer(),
+                        TextButton(
+                            onPressed: () async {
+                              try {
 
-                              FirebaseAuth.instance.signOut();
+                                await FirebaseAuth.instance.signOut();
 
-                              Provider.of<AppConfig>(context, listen: false)
-                                  .appUser = null;
-                              Provider.of<AppConfig>(context, listen: false)
-                                  .selectedStreamer = null;
+                                Provider.of<AppConfig>(context, listen: false)
+                                    .appUser
+                                    ?.isAnynymous = true;
 
-                              context.router.pushAndRemoveUntil(HomeRoute(),
-                                  predicate: (_) => false);
-                            } catch (e) {
-                              print(e);
-                            }
-                          },
-                          child: Icon(
-                            Icons.logout,
-                            size: 30,
-                            color: Colors.white,
-                          )),
-                    ],
+                                Provider.of<AppConfig>(context, listen: false)
+                                    .appUser = null;
+                                Provider.of<AppConfig>(context, listen: false)
+                                    .selectedStreamer = null;
+
+                                context.router.pushAndRemoveUntil(HomeRoute(),
+                                    predicate: (_) => false);
+                              } catch (e) {
+                                print(e);
+                              }
+                            },
+                            child: Icon(
+                              Icons.logout,
+                              size: 25,
+                              color: Colors.white,
+                            )),
+                      ],
+                    ),
                   ),
                 ),
               ),

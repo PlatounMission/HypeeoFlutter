@@ -43,9 +43,6 @@ class TokenPurchases {
     this.tokenCount =  _convertToDoubleValue(map["token_count"]);
     this.donationAmount = _convertToDoubleValue(map["donation_amount"]);
 
-    print("new user has been added");
-    print(this.toString());
-    print("_______________________");
   }
 
   @override

@@ -23,22 +23,19 @@ class AppUser {
   AppUser.map(Map<String, dynamic> map) {
 
     this.photoUrl = map["photo_url"] ?? "";
-    this.email = map["email"];
+    this.email = map["email"] ?? "";
     this.numberOfFollowers = _convertToDoubleValue(map["no_of_followers"]);
-    this.twitchChannel = map["twitch_channel"];
+    this.twitchChannel = map["twitch_channel"] ?? "";
     this.isStreamer = map["is_streamer"] ?? false;
     this.isStreamerValidated = map["is_streamer_validated"] ?? false;
-    this.tokenName = map["token_name"];
-    this.name = map["name"];
+    this.tokenName = map["token_name"] ?? "";
+    this.name = map["name"] ?? "";
     this.tokenPrice = _convertToDoubleValue(map["token_price"]);
     this.numberOfTokenIssued =
         _convertToDoubleValue(map["number_of_token_issued"]);
-    this.paypalLink = map["paypal_link"];
+    this.paypalLink = map["paypal_link"] ?? "";
     this.isAnynymous = (map["email"] == null);
 
-    print("new user has been added");
-    print(this.toString());
-    print("_______________________");
   }
 
   @override

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
-import 'text_field_container.dart';
 
 class SearchTextField extends StatelessWidget {
 
@@ -81,27 +80,5 @@ class SearchTextField extends StatelessWidget {
     );
 
 
-    // return Container(
-    //   height: 80,
-    //   child: Material(
-    //     color: Colors.transparent,
-    //     child: TextFieldContainer(
-    //       child: TextField(
-    //         controller: textController,
-    //         onChanged: onChanged,
-    //         cursorColor: kPrimaryColor,
-    //         decoration: InputDecoration(
-    //           errorText: errorText,
-    //           icon: Icon(
-    //             icon,
-    //             color: kPrimaryColor,
-    //           ),
-    //           hintText: hintText,
-    //           border: InputBorder.none,
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 }
